@@ -1,0 +1,196 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mapa de Mufas (Interacción)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet/dist/leaflet.css"
+  />
+
+  <style>
+    body, html { margin:0; padding:0; height:100%; }
+    #map        { width:100%; height:100%; }
+
+    /* Dark popup styling */
+    .leaflet-popup-content-wrapper { background:#2b2b2b; color:#eee; }
+    .leaflet-popup-tip            { background:#2b2b2b; }
+
+    /* Table inside popup */
+    .popup-table {
+      width:100%; border-collapse:collapse;
+      font-size:12px; margin-top:8px;
+    }
+    .popup-table th,
+    .popup-table td {
+      border:1px solid #444; padding:2px 4px;
+      text-align:center;
+    }
+    .popup-table th { background:#444; }
+
+    .assign-btn {
+      cursor:pointer; padding:2px 6px;
+      background:#1abc9c; color:#000;
+      border:none; border-radius:3px;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // ====================================
+    // URLs dinámicas desde Django
+    // ====================================
+    const URLS = {
+      mufas   : "{% url 'mufas:mufas_json' %}",
+      asignar : "{% url 'mufas:asignar_hilo' %}",
+    };
+
+    // ====================================
+    // Inicializa el mapa
+    // ====================================
+    const map = L.map('map').setView([-12.05, -77.05], 12);
+    L.tileLayer(
+      'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+      { attribution:'&copy; CARTO &copy; OSM', subdomains:'abcd', maxZoom:19 }
+    ).addTo(map);
+
+    // ====================================
+    // Al abrir un popup, enlaza los botones
+    // ====================================
+    map.on('popupopen', e => {
+      const pop = e.popup.getElement();
+      pop.querySelectorAll('.assign-btn').forEach(btn => {
+        btn.onclick = async () => {
+          const hiloId   = btn.dataset.hiloId;
+          const usoInput = pop.querySelector(`#uso-${hiloId}`);
+          const uso      = usoInput.value.trim();
+          if (!uso) {
+            return alert('Debe indicar proyecto/uso');
+          }
+
+          try {
+            const resp = await fetch(URLS.asignar, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken' : getCookie('csrftoken'),
+              },
+              body: JSON.stringify({ hilo_id: +hiloId, uso })
+            });
+            if (!resp.ok) {
+              const text = await resp.text();
+              console.error('Asignar hilo falló', resp.status, text);
+              return alert('Error al asignar hilo');
+            }
+            const j = await resp.json();
+            if (j.status === 'ok') {
+              btn.textContent   = '✓';
+              usoInput.disabled = true;
+            } else {
+              alert('Error al asignar: ' + JSON.stringify(j));
+            }
+          } catch(err) {
+            console.error('Error de red asignando hilo', err);
+            alert('Error de red');
+          }
+        };
+      });
+    });
+
+    // ====================================
+    // Carga y dibuja las mufas
+    // ====================================
+    async function cargarMufas(){
+      console.log('Solicitando mufas en', URLS.mufas);
+      let resp;
+      try {
+        resp = await fetch(URLS.mufas);
+      } catch(err) {
+        return console.error('Error de red al cargar mufas', err);
+      }
+      if (!resp.ok) {
+        console.error('HTTP', resp.status, resp.statusText);
+        const text = await resp.text();
+        console.error('Respuesta cruda:', text);
+        return;
+      }
+      let data;
+      try {
+        data = await resp.json();
+      } catch(err) {
+        console.error('No se pudo parsear JSON:', err);
+        const text = await resp.text();
+        console.error('Respuesta cruda:', text);
+        return;
+      }
+      console.log('Mufas recibidas:', data);
+
+      data.forEach(m => {
+        const filas = m.hilos.map(h => `
+          <tr>
+            <td>${h.numero}</td>
+            <td>${h.estado}</td>
+            <td>
+              <input
+                id="uso-${h.id}"
+                value="${h.uso}"
+                placeholder="Proyecto"
+                style="width:80px;"
+                ${h.estado==='ocupado'?'disabled':''}
+              />
+            </td>
+            <td>${h.splitter}</td>
+            <td>${h.destino}</td>
+            <td>
+              <button
+                class="assign-btn"
+                data-hilo-id="${h.id}"
+                ${h.estado==='ocupado'?'disabled':''}
+              >Asignar</button>
+            </td>
+          </tr>
+        `).join('');
+
+        const popupHtml = `
+          <strong>${m.codigo}</strong><br>
+          ${m.descripcion}<br>
+          Capacidad: ${m.capacidad} | Libres: ${m.libres} | Ocupados: ${m.ocupados}
+          <table class="popup-table">
+            <thead>
+              <tr>
+                <th>#</th><th>Estado</th><th>Uso/Proyecto</th>
+                <th>Splitter</th><th>Destino</th><th>Acción</th>
+              </tr>
+            </thead>
+            <tbody>${filas}</tbody>
+          </table>
+        `;
+
+        L.circleMarker([m.latitud, m.longitud], {
+          radius:6, fillColor:'#1abc9c', color:'#fff',
+          weight:1, fillOpacity:0.8
+        })
+        .addTo(map)
+        .bindPopup(popupHtml, { maxWidth:300 });
+      });
+    }
+
+    // Función para leer cookie CSRF
+    function getCookie(name) {
+      const match = document.cookie.match('(^|;)\\s*'+name+'\\s*=\\s*([^;]+)');
+      return match ? match.pop() : '';
+    }
+
+    // Ejecutar al cargar
+    cargarMufas();
+  </script>
+</body>
+</html>

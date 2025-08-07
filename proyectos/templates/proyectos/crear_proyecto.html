@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Crear Proyecto - WinFibra{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0 text-primary">➕ Crear Nuevo Proyecto</h2>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="row">
+                        <!-- Información básica -->
+                        <div class="col-md-6">
+                            <h5 class="text-secondary mb-3">📋 Información Básica</h5>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.codigo.id_for_label }}" class="form-label">
+                                    {{ form.codigo.label }}
+                                </label>
+                                {{ form.codigo }}
+                                {% if form.codigo.errors %}
+                                    <div class="text-danger mt-1">{{ form.codigo.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.nombre_edificio.id_for_label }}" class="form-label">
+                                    {{ form.nombre_edificio.label }}
+                                </label>
+                                {{ form.nombre_edificio }}
+                                {% if form.nombre_edificio.errors %}
+                                    <div class="text-danger mt-1">{{ form.nombre_edificio.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.direccion.id_for_label }}" class="form-label">
+                                    {{ form.direccion.label }}
+                                </label>
+                                {{ form.direccion }}
+                                {% if form.direccion.errors %}
+                                    <div class="text-danger mt-1">{{ form.direccion.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Ubicación -->
+                        <div class="col-md-6">
+                            <h5 class="text-secondary mb-3">📍 Ubicación</h5>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.departamento.id_for_label }}" class="form-label">
+                                    {{ form.departamento.label }}
+                                </label>
+                                {{ form.departamento }}
+                                {% if form.departamento.errors %}
+                                    <div class="text-danger mt-1">{{ form.departamento.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.distrito.id_for_label }}" class="form-label">
+                                    {{ form.distrito.label }}
+                                </label>
+                                {{ form.distrito }}
+                                {% if form.distrito.errors %}
+                                    <div class="text-danger mt-1">{{ form.distrito.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.latitud.id_for_label }}" class="form-label">
+                                            {{ form.latitud.label }}
+                                        </label>
+                                        {{ form.latitud }}
+                                        {% if form.latitud.errors %}
+                                            <div class="text-danger mt-1">{{ form.latitud.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.longitud.id_for_label }}" class="form-label">
+                                            {{ form.longitud.label }}
+                                        </label>
+                                        {{ form.longitud }}
+                                        {% if form.longitud.errors %}
+                                            <div class="text-danger mt-1">{{ form.longitud.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Características del edificio -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h5 class="text-secondary mb-3">🏗️ Características del Edificio</h5>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.cantidad_pisos.id_for_label }}" class="form-label">
+                                    {{ form.cantidad_pisos.label }}
+                                </label>
+                                {{ form.cantidad_pisos }}
+                                {% if form.cantidad_pisos.errors %}
+                                    <div class="text-danger mt-1">{{ form.cantidad_pisos.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.cantidad_departamentos.id_for_label }}" class="form-label">
+                                    {{ form.cantidad_departamentos.label }}
+                                </label>
+                                {{ form.cantidad_departamentos }}
+                                {% if form.cantidad_departamentos.errors %}
+                                    <div class="text-danger mt-1">{{ form.cantidad_departamentos.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'proyectos:list' %}" class="btn btn-secondary">
+                                    ← Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    💾 Guardar Proyecto
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

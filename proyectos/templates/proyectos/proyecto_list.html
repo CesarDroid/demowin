@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Proyectos - WinFibra{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="text-primary">
+        🏢 Gestión de Proyectos
+    </h1>
+    <a class="btn btn-primary" href="{% url 'proyectos:create' %}">
+        ➕ Nuevo Proyecto
+    </a>
+</div>
+
+{% if proyectos %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-dark table-hover">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Edificio</th>
+                            <th>Distrito</th>
+                            <th>Pisos</th>
+                            <th>Departamentos</th>
+                            <th>Coordenadas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for proyecto in proyectos %}
+                        <tr>
+                            <td>
+                                <span class="badge bg-primary">{{ proyecto.codigo }}</span>
+                            </td>
+                            <td>{{ proyecto.nombre_edificio }}</td>
+                            <td>{{ proyecto.distrito }}</td>
+                            <td>{{ proyecto.cantidad_pisos }}</td>
+                            <td>{{ proyecto.cantidad_departamentos }}</td>
+                            <td>
+                                {% if proyecto.latitud and proyecto.longitud %}
+                                    <small class="text-muted">
+                                        {{ proyecto.latitud|floatformat:4 }}, {{ proyecto.longitud|floatformat:4 }}
+                                    </small>
+                                {% else %}
+                                    <span class="text-warning">Sin coordenadas</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paginación -->
+    {% if is_paginated %}
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                    </li>
+                {% endif %}
+                
+                <li class="page-item active">
+                    <span class="page-link">
+                        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                    </span>
+                </li>
+                
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+{% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <h3 class="text-muted">📂 No hay proyectos registrados</h3>
+            <p class="text-muted">Comienza creando tu primer proyecto</p>
+            <a class="btn btn-primary btn-lg" href="{% url 'proyectos:create' %}">
+                ➕ Crear Primer Proyecto
+            </a>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

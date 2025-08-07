@@ -1,0 +1,1070 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Control de Mufas - WinFibra</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0a0a0a;
+      color: #ffffff;
+      overflow: hidden;
+    }
+
+    #map {
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+    }
+
+    /* Panel de Control Principal */
+    .control-panel {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 360px;
+      background: rgba(15, 15, 15, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      z-index: 1000;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .control-panel.minimized {
+      width: 60px;
+      height: 60px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .panel-title {
+      font-weight: 600;
+      font-size: 18px;
+      color: #1abc9c;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .minimize-btn {
+      background: none;
+      border: none;
+      color: #888;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .minimize-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .panel-content {
+      padding: 20px;
+    }
+
+    /* Estadísticas */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .stat-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .stat-number {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-free { color: #10b981; }
+    .stat-occupied { color: #f59e0b; }
+    .stat-reserved { color: #8b5cf6; }
+    .stat-total { color: #1abc9c; }
+
+    /* Filtros */
+    .filters-section {
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #ccc;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-group {
+      margin-bottom: 16px;
+    }
+
+    .filter-label {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .search-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: #fff;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #1abc9c;
+      box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.1);
+    }
+
+    .search-input::placeholder {
+      color: #666;
+    }
+
+    .filter-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .filter-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 8px 16px;
+      color: #ccc;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .filter-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .filter-btn.active {
+      background: #1abc9c;
+      border-color: #1abc9c;
+      color: #000;
+    }
+
+    .filter-btn .count {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      padding: 2px 6px;
+      font-size: 10px;
+      margin-left: 4px;
+    }
+
+    .filter-btn.active .count {
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    /* Acciones Rápidas */
+    .quick-actions {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .action-btn {
+      flex: 1;
+      background: linear-gradient(45deg, #1abc9c, #16a085);
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(26, 188, 156, 0.3);
+    }
+
+    .action-btn.secondary {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .action-btn.secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+    }
+
+    /* Panel de Estado Inferior */
+    .status-panel {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(15, 15, 15, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      z-index: 1000;
+      min-width: 200px;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .status-text {
+      font-size: 12px;
+      color: #888;
+    }
+
+    .last-update {
+      font-size: 11px;
+      color: #666;
+      text-align: right;
+    }
+
+    /* Popup personalizado */
+    .leaflet-popup-content-wrapper {
+      background: rgba(15, 15, 15, 0.95) !important;
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .leaflet-popup-content {
+      color: #fff !important;
+      margin: 16px !important;
+    }
+
+    .leaflet-popup-tip {
+      background: rgba(15, 15, 15, 0.95) !important;
+    }
+
+    .popup-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .popup-title {
+      font-weight: 600;
+      color: #1abc9c;
+    }
+
+    .popup-status {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .status-badge {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+
+    .badge-free { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+    .badge-occupied { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+    .badge-reserved { background: rgba(139, 92, 246, 0.2); color: #8b5cf6; }
+
+    /* Tabla de hilos minimalista */
+    .hilos-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    .hilos-table th,
+    .hilos-table td {
+      padding: 6px 8px;
+      font-size: 11px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+    }
+
+    .hilos-table th {
+      background: rgba(255, 255, 255, 0.05);
+      color: #888;
+      font-weight: 500;
+    }
+
+    .hilo-estado {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 4px;
+    }
+
+    .estado-libre { background: #10b981; }
+    .estado-ocupado { background: #f59e0b; }
+    .estado-reservado { background: #8b5cf6; }
+
+    .assign-btn {
+      background: linear-gradient(45deg, #1abc9c, #16a085);
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      color: #fff;
+      font-size: 9px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .assign-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .assign-input {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      padding: 2px 4px;
+      color: #fff;
+      font-size: 9px;
+      width: 60px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .control-panel {
+        width: calc(100vw - 40px);
+        max-width: 360px;
+      }
+      
+      .status-panel {
+        bottom: 10px;
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+      }
+    }
+
+    /* Animaciones */
+    .fade-in {
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Efectos de carga */
+    .loading-skeleton {
+      background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+      border-radius: 8px;
+      height: 20px;
+      margin-bottom: 8px;
+    }
+
+    @keyframes loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+
+  <!-- Panel de Control Principal -->
+  <div class="control-panel fade-in" id="controlPanel">
+    <div class="panel-header">
+      <div class="panel-title">
+        <i class="fas fa-network-wired"></i>
+        Control de Mufas
+      </div>
+      <button class="minimize-btn" onclick="togglePanel()">
+        <i class="fas fa-minus" id="minimizeIcon"></i>
+      </button>
+    </div>
+    
+    <div class="panel-content" id="panelContent">
+      <!-- Estadísticas -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number stat-total" id="totalMufas">--</div>
+          <div class="stat-label">Total Mufas</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number stat-free" id="hilosLibres">--</div>
+          <div class="stat-label">Hilos Libres</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number stat-occupied" id="hilosOcupados">--</div>
+          <div class="stat-label">Ocupados</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number stat-reserved" id="hilosReservados">--</div>
+          <div class="stat-label">Reservados</div>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="filters-section">
+        <div class="section-title">
+          <i class="fas fa-filter"></i>
+          Filtros
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">Buscar Mufa</label>
+          <input type="text" class="search-input" id="searchInput" placeholder="Código, ubicación o distrito...">
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">Estado de Hilos</label>
+          <div class="filter-buttons" id="estadoFilters">
+            <button class="filter-btn active" data-estado="todos">
+              <i class="fas fa-list"></i> Todos <span class="count" id="countTodos">0</span>
+            </button>
+            <button class="filter-btn" data-estado="libre">
+              <span class="hilo-estado estado-libre"></span> Libres <span class="count" id="countLibres">0</span>
+            </button>
+            <button class="filter-btn" data-estado="ocupado">
+              <span class="hilo-estado estado-ocupado"></span> Ocupados <span class="count" id="countOcupados">0</span>
+            </button>
+            <button class="filter-btn" data-estado="reservado">
+              <span class="hilo-estado estado-reservado"></span> Reservados <span class="count" id="countReservados">0</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Tipo de Mufa</label>
+          <div class="filter-buttons" id="tipoFilters">
+            <button class="filter-btn active" data-tipo="todos">
+              <i class="fas fa-globe"></i> Todos
+            </button>
+            <button class="filter-btn" data-tipo="troncal">
+              <i class="fas fa-share-alt"></i> Troncal
+            </button>
+            <button class="filter-btn" data-tipo="derivacion">
+              <i class="fas fa-code-branch"></i> Derivación
+            </button>
+            <button class="filter-btn" data-tipo="final">
+              <i class="fas fa-home"></i> Final
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acciones Rápidas -->
+      <div class="quick-actions">
+        <button class="action-btn" onclick="refreshData()">
+          <i class="fas fa-sync-alt"></i> Actualizar
+        </button>
+        <button class="action-btn secondary" onclick="exportData()">
+          <i class="fas fa-download"></i> Exportar
+        </button>
+      </div>
+
+      <!-- Vista Rápida -->
+      <div class="filter-group">
+        <label class="filter-label">Vista Rápida</label>
+        <div class="filter-buttons">
+          <button class="filter-btn" onclick="showProblematicas()">
+            <i class="fas fa-exclamation-triangle"></i> Problemáticas
+          </button>
+          <button class="filter-btn" onclick="showDisponibles()">
+            <i class="fas fa-check-circle"></i> Disponibles
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel de Estado -->
+  <div class="status-panel fade-in">
+    <div class="status-indicator">
+      <div class="status-dot"></div>
+      <span class="status-text" id="connectionStatus">Sistema conectado</span>
+    </div>
+    <div class="last-update" id="lastUpdate">Actualizado: --:--</div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Variables globales
+    let map;
+    let mufasData = [];
+    let markersLayer;
+    let currentFilters = {
+      estado: 'todos',
+      tipo: 'todos',
+      search: ''
+    };
+
+    // URLs dinámicas
+    const URLS = {
+      mufas: "{% url 'mufas:mufas_json' %}",
+      asignar: "{% url 'mufas:asignar_hilo' %}"
+    };
+
+    // Inicializar mapa
+    function initMap() {
+      map = L.map('map').setView([-12.05, -77.05], 12);
+      
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; CARTO &copy; OSM',
+        subdomains: 'abcd',
+        maxZoom: 19
+      }).addTo(map);
+
+      markersLayer = L.layerGroup().addTo(map);
+    }
+
+    // Cargar datos de mufas
+    async function loadMufasData() {
+      try {
+        updateStatus('Cargando datos...', false);
+        const response = await fetch(URLS.mufas);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        
+        mufasData = await response.json();
+        updateStatistics();
+        displayMufas();
+        updateStatus('Sistema conectado', true);
+        updateLastUpdate();
+        
+      } catch (error) {
+        console.error('Error cargando mufas:', error);
+        updateStatus('Error de conexión', false);
+      }
+    }
+
+    // Actualizar estadísticas
+    function updateStatistics() {
+      const totalMufas = mufasData.length;
+      let totalLibres = 0;
+      let totalOcupados = 0;
+      let totalReservados = 0;
+
+      mufasData.forEach(mufa => {
+        totalLibres += mufa.libres || 0;
+        totalOcupados += mufa.ocupados || 0;
+        // Asumir que reservados es parte de los datos
+        mufa.hilos.forEach(hilo => {
+          if (hilo.estado === 'reservado') totalReservados++;
+        });
+      });
+
+      document.getElementById('totalMufas').textContent = totalMufas;
+      document.getElementById('hilosLibres').textContent = totalLibres;
+      document.getElementById('hilosOcupados').textContent = totalOcupados;
+      document.getElementById('hilosReservados').textContent = totalReservados;
+
+      // Actualizar contadores en filtros
+      document.getElementById('countTodos').textContent = totalMufas;
+      document.getElementById('countLibres').textContent = totalLibres;
+      document.getElementById('countOcupados').textContent = totalOcupados;
+      document.getElementById('countReservados').textContent = totalReservados;
+    }
+
+    // Mostrar mufas en el mapa
+    function displayMufas() {
+      markersLayer.clearLayers();
+      
+      const filteredMufas = filterMufas();
+      
+      filteredMufas.forEach(mufa => {
+        const marker = createMufaMarker(mufa);
+        markersLayer.addLayer(marker);
+      });
+    }
+
+    // Filtrar mufas según criterios activos
+    function filterMufas() {
+      return mufasData.filter(mufa => {
+        // Filtro de búsqueda
+        if (currentFilters.search) {
+          const searchLower = currentFilters.search.toLowerCase();
+          const matchesSearch = 
+            mufa.codigo.toLowerCase().includes(searchLower) ||
+            (mufa.descripcion || '').toLowerCase().includes(searchLower) ||
+            (mufa.distrito || '').toLowerCase().includes(searchLower);
+          if (!matchesSearch) return false;
+        }
+
+        // Filtro de estado de hilos
+        if (currentFilters.estado !== 'todos') {
+          const hasMatchingHilos = mufa.hilos.some(hilo => 
+            hilo.estado === currentFilters.estado
+          );
+          if (!hasMatchingHilos) return false;
+        }
+
+        // Filtro de tipo de mufa
+        if (currentFilters.tipo !== 'todos') {
+          if (mufa.tipo !== currentFilters.tipo) return false;
+        }
+
+        return true;
+      });
+    }
+
+    // Crear marcador para mufa
+    function createMufaMarker(mufa) {
+      const libres = mufa.libres || 0;
+      const ocupados = mufa.ocupados || 0;
+      const total = mufa.capacidad || 0;
+
+      // Color del marcador según disponibilidad
+      let color = '#e74c3c'; // Rojo por defecto
+      if (libres > total * 0.7) color = '#27ae60'; // Verde si >70% libre
+      else if (libres > total * 0.3) color = '#f39c12'; // Naranja si >30% libre
+
+      const marker = L.circleMarker([mufa.latitud, mufa.longitud], {
+        radius: 8,
+        fillColor: color,
+        color: '#fff',
+        weight: 2,
+        fillOpacity: 0.8
+      });
+
+      // Popup mejorado
+      const popupContent = createPopupContent(mufa);
+      marker.bindPopup(popupContent, { 
+        maxWidth: 400,
+        className: 'custom-popup'
+      });
+
+      return marker;
+    }
+
+    // Crear contenido del popup
+    function createPopupContent(mufa) {
+      const hilosTable = mufa.hilos.map(hilo => `
+        <tr>
+          <td>${hilo.numero}</td>
+          <td>
+            <span class="hilo-estado estado-${hilo.estado}"></span>
+            ${hilo.estado}
+          </td>
+          <td>
+            <input class="assign-input" id="uso-${hilo.id}" 
+                   value="${hilo.uso || ''}" 
+                   placeholder="Proyecto"
+                   ${hilo.estado === 'ocupado' ? 'disabled' : ''}>
+          </td>
+          <td>${hilo.splitter}</td>
+          <td>
+            <button class="assign-btn" 
+                    data-hilo-id="${hilo.id}"
+                    ${hilo.estado === 'ocupado' ? 'disabled' : ''}>
+              ${hilo.estado === 'ocupado' ? '✓' : 'Asignar'}
+            </button>
+          </td>
+        </tr>
+      `).join('');
+
+      return `
+        <div class="popup-header">
+          <div class="popup-title">${mufa.codigo}</div>
+          <div style="font-size: 12px; color: #888;">
+            ${mufa.distrito || 'Sin distrito'}
+          </div>
+        </div>
+        
+        <div class="popup-status">
+          <span class="status-badge badge-free">${mufa.libres || 0} Libres</span>
+          <span class="status-badge badge-occupied">${mufa.ocupados || 0} Ocupados</span>
+          <span class="status-badge">${mufa.capacidad || 0} Total</span>
+        </div>
+        
+        <div style="font-size: 12px; color: #ccc; margin-bottom: 12px;">
+          ${mufa.descripcion || 'Sin descripción'}
+        </div>
+        
+        <table class="hilos-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Estado</th>
+              <th>Uso/Proyecto</th>
+              <th>Splitter</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${hilosTable}
+          </tbody>
+        </table>
+      `;
+    }
+
+    // Event Listeners
+    function setupEventListeners() {
+      // Búsqueda
+      document.getElementById('searchInput').addEventListener('input', (e) => {
+        currentFilters.search = e.target.value;
+        displayMufas();
+      });
+
+      // Filtros de estado
+      document.getElementById('estadoFilters').addEventListener('click', (e) => {
+        if (e.target.classList.contains('filter-btn')) {
+          document.querySelectorAll('#estadoFilters .filter-btn').forEach(btn => 
+            btn.classList.remove('active')
+          );
+          e.target.classList.add('active');
+          currentFilters.estado = e.target.dataset.estado;
+          displayMufas();
+        }
+      });
+
+      // Filtros de tipo
+      document.getElementById('tipoFilters').addEventListener('click', (e) => {
+        if (e.target.classList.contains('filter-btn')) {
+          document.querySelectorAll('#tipoFilters .filter-btn').forEach(btn => 
+            btn.classList.remove('active')
+          );
+          e.target.classList.add('active');
+          currentFilters.tipo = e.target.dataset.tipo;
+          displayMufas();
+        }
+      });
+
+      // Asignación de hilos en popups
+      map.on('popupopen', (e) => {
+        const popup = e.popup.getElement();
+        popup.querySelectorAll('.assign-btn').forEach(btn => {
+          btn.onclick = async () => {
+            const hiloId = btn.dataset.hiloId;
+            const usoInput = popup.querySelector(`#uso-${hiloId}`);
+            const uso = usoInput.value.trim();
+            
+            if (!uso) {
+              alert('Debe indicar proyecto/uso');
+              return;
+            }
+
+            try {
+              const response = await fetch(URLS.asignar, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ hilo_id: +hiloId, uso })
+              });
+
+              if (response.ok) {
+                btn.textContent = '✓';
+                btn.disabled = true;
+                usoInput.disabled = true;
+                refreshData();
+              } else {
+                alert('Error al asignar hilo');
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              alert('Error de conexión');
+            }
+          };
+        });
+      });
+    }
+
+    // Funciones auxiliares
+    function togglePanel() {
+      const panel = document.getElementById('controlPanel');
+      const icon = document.getElementById('minimizeIcon');
+      
+      panel.classList.toggle('minimized');
+      icon.className = panel.classList.contains('minimized') ? 
+        'fas fa-plus' : 'fas fa-minus';
+    }
+
+    function refreshData() {
+      loadMufasData();
+    }
+
+    function exportData() {
+      const filteredData = filterMufas();
+      const csvContent = generateCSV(filteredData);
+      downloadCSV(csvContent, 'mufas_export.csv');
+    }
+
+    function generateCSV(data) {
+      const headers = ['Código', 'Tipo', 'Distrito', 'Capacidad', 'Libres', 'Ocupados', 'Ubicación'];
+      const rows = data.map(mufa => [
+        mufa.codigo,
+        mufa.tipo || '',
+        mufa.distrito || '',
+        mufa.capacidad || 0,
+        mufa.libres || 0,
+        mufa.ocupados || 0,
+        mufa.descripcion || ''
+      ]);
+      
+      return [headers, ...rows].map(row => row.join(',')).join('\n');
+    }
+
+    function downloadCSV(content, filename) {
+      const blob = new Blob([content], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    }
+
+    function showProblematicas() {
+      // Filtrar mufas con problemas (alta ocupación, sin hilos libres)
+      const problematicas = mufasData.filter(mufa => {
+        const ocupacion = (mufa.ocupados || 0) / (mufa.capacidad || 1);
+        return ocupacion > 0.8 || (mufa.libres || 0) === 0;
+      });
+
+      markersLayer.clearLayers();
+      problematicas.forEach(mufa => {
+        const marker = createMufaMarker(mufa);
+        // Hacer parpadear los marcadores problemáticos
+        marker.setStyle({ color: '#e74c3c', weight: 3 });
+        markersLayer.addLayer(marker);
+      });
+
+      // Ajustar vista para mostrar todas las problemáticas
+      if (problematicas.length > 0) {
+        const group = new L.featureGroup(markersLayer.getLayers());
+        map.fitBounds(group.getBounds().pad(0.1));
+      }
+    }
+
+    function showDisponibles() {
+      // Filtrar mufas con buena disponibilidad
+      const disponibles = mufasData.filter(mufa => {
+        const ocupacion = (mufa.ocupados || 0) / (mufa.capacidad || 1);
+        return ocupacion < 0.5 && (mufa.libres || 0) > 5;
+      });
+
+      markersLayer.clearLayers();
+      disponibles.forEach(mufa => {
+        const marker = createMufaMarker(mufa);
+        marker.setStyle({ color: '#27ae60', weight: 3 });
+        markersLayer.addLayer(marker);
+      });
+
+      if (disponibles.length > 0) {
+        const group = new L.featureGroup(markersLayer.getLayers());
+        map.fitBounds(group.getBounds().pad(0.1));
+      }
+    }
+
+    function updateStatus(message, isConnected) {
+      const statusElement = document.getElementById('connectionStatus');
+      const dotElement = document.querySelector('.status-dot');
+      
+      statusElement.textContent = message;
+      dotElement.style.background = isConnected ? '#10b981' : '#e74c3c';
+    }
+
+    function updateLastUpdate() {
+      const now = new Date();
+      const timeString = now.toLocaleTimeString('es-PE', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+      document.getElementById('lastUpdate').textContent = `Actualizado: ${timeString}`;
+    }
+
+    function getCookie(name) {
+      const match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return match ? match.pop() : '';
+    }
+
+    // Auto-actualización cada 30 segundos
+    function startAutoRefresh() {
+      setInterval(() => {
+        loadMufasData();
+      }, 30000);
+    }
+
+    // Búsqueda con debounce para mejor performance
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
+    // Aplicar debounce a la búsqueda
+    const debouncedSearch = debounce((value) => {
+      currentFilters.search = value;
+      displayMufas();
+    }, 300);
+
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', () => {
+      initMap();
+      setupEventListeners();
+      loadMufasData();
+      startAutoRefresh();
+      
+      // Aplicar debounce a la búsqueda
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('input', (e) => {
+        debouncedSearch(e.target.value);
+      });
+    });
+
+    // Atajos de teclado
+    document.addEventListener('keydown', (e) => {
+      // Ctrl/Cmd + F para enfocar búsqueda
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        document.getElementById('searchInput').focus();
+      }
+      
+      // Escape para limpiar filtros
+      if (e.key === 'Escape') {
+        document.getElementById('searchInput').value = '';
+        currentFilters.search = '';
+        displayMufas();
+      }
+      
+      // R para refresh
+      if (e.key === 'r' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        refreshData();
+      }
+    });
+
+    // Efectos visuales adicionales
+    function addMapEffects() {
+      // Agregar controles de zoom personalizados
+      map.zoomControl.remove();
+      
+      const customZoomControl = L.control.zoom({
+        position: 'topright'
+      });
+      customZoomControl.addTo(map);
+      
+      // Agregar escala
+      L.control.scale({
+        position: 'bottomleft',
+        imperial: false
+      }).addTo(map);
+    }
+
+    // Gestión de errores mejorada
+    window.addEventListener('error', (e) => {
+      console.error('Error global:', e.error);
+      updateStatus('Error del sistema', false);
+    });
+
+    // Detectar conexión de red
+    window.addEventListener('online', () => {
+      updateStatus('Conexión restaurada', true);
+      loadMufasData();
+    });
+
+    window.addEventListener('offline', () => {
+      updateStatus('Sin conexión', false);
+    });
+
+    // Añadir efectos del mapa al cargar
+    setTimeout(addMapEffects, 1000);
+  </script>
+</body>
+</html>

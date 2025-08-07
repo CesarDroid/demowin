@@ -1,0 +1,63 @@
+diff --git a/core/settings.py b/core/settings.py
+index 1234567..89abcde 100644
+--- a/core/settings.py
++++ b/core/settings.py
+@@ -12,7 +12,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
+ 
+ TEMPLATES = [
+     {
+-        'DIRS': [],
++        # Directorio para plantillas globales (p. ej. base.html)
++        'DIRS': [
++            BASE_DIR / 'templates',
++        ],
++        # Si además usas plantillas dentro de cada app
+         'APP_DIRS': True,
+         'OPTIONS': {
+             'context_processors': [
+diff --git a/core/urls.py b/core/urls.py
+index abcdef0..1234567 100644
+--- a/core/urls.py
++++ b/core/urls.py
+@@ -1,10 +1,13 @@
+ from django.contrib import admin
+ from django.urls import path, include
+ 
+-urlpatterns = [
+-    path('admin/', admin.site.urls),
+-    path('mufas/', include('mufas.urls')),
+-    path('proyectos/', include('proyectos.urls')),
+-    path('roles/', include('roles.urls')),
+-]
++urlpatterns = [
++    # Panel de administración
++    path('admin/', admin.site.urls),
++
++    # Módulo de mufas (mapa, JSON, asignaciones)
++    path('mufas/', include('mufas.urls', namespace='mufas')),
++
++    # Módulo de proyectos (creación, listado)
++    path('proyectos/', include('proyectos.urls', namespace='proyectos')),
++
++    # Módulo de roles/permisos
++    path('roles/', include('roles.urls', namespace='roles')),
++]
+diff --git a/proyectos/urls.py b/proyectos/urls.py
+new file mode 100644
+index 0000000..abcdef0
+--- /dev/null
++++ b/proyectos/urls.py
+@@ -0,0 +1,12 @@
++# proyectos/urls.py
++from django.urls import path
++from .views import ProyectoListView, CrearProyectoView
++
++app_name = "proyectos"
++
++urlpatterns = [
++    # Listado de proyectos
++    path('', ProyectoListView.as_view(), name='list'),
++
++    # Crear un nuevo proyecto
++    path('crear/', CrearProyectoView.as_view(), name='create'),
++]
