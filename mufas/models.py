@@ -1,4 +1,4 @@
-# mufas/models.py - CORREGIDO
+# mufas/models.py - VERSIÓN CORREGIDA Y COMPATIBLE
 from django.db import models
 
 class CableTroncal(models.Model):
@@ -93,7 +93,7 @@ class Mufa(models.Model):
     )
     capacidad_hilos = models.IntegerField(
         choices=OPCIONES_CAPACIDAD,
-        default=12,  # ← Cambiado de 0 a 12 para evitar errores
+        default=12,
         verbose_name='Capacidad de hilos'
     )
     distrito        = models.CharField(
@@ -111,10 +111,29 @@ class Mufa(models.Model):
     def __str__(self):
         return f"Mufa [{self.codigo}]"
 
+    @property
+    def hilos_libres(self):
+        return self.hilos.filter(estado='libre').count()
+
+    @property
+    def hilos_ocupados(self):
+        return self.hilos.filter(estado='ocupado').count()
+
+    @property
+    def hilos_reservados(self):
+        return self.hilos.filter(estado='reservado').count()
+
+    @property
+    def porcentaje_ocupacion(self):
+        total = self.hilos.count()
+        if total > 0:
+            return round((self.hilos_ocupados / total) * 100, 1)
+        return 0
+
 
 class Hilo(models.Model):
     mufa     = models.ForeignKey(
-        Mufa,  # ← Referencia directa, no string
+        Mufa,
         related_name='hilos',
         on_delete=models.CASCADE,
         verbose_name='Mufa'
@@ -158,7 +177,6 @@ class Hilo(models.Model):
         verbose_name        = 'Hilo'
         verbose_name_plural = 'Hilos'
         ordering            = ['mufa', 'numero']
-        # ← Agregar constraint para evitar duplicados
         unique_together     = [['mufa', 'numero']]
 
     def __str__(self):
@@ -167,13 +185,13 @@ class Hilo(models.Model):
 
 class Conexion(models.Model):
     origen        = models.ForeignKey(
-        Hilo,  # ← Referencia directa, no string
+        Hilo,
         related_name='conexiones_origen',
         on_delete=models.CASCADE,
         verbose_name='Hilo Origen'
     )
     destino       = models.ForeignKey(
-        Hilo,  # ← Referencia directa, no string
+        Hilo,
         related_name='conexiones_destino',
         on_delete=models.CASCADE,
         verbose_name='Hilo Destino'
@@ -188,7 +206,6 @@ class Conexion(models.Model):
         verbose_name        = 'Conexión'
         verbose_name_plural = 'Conexiones'
         ordering            = ['origen__mufa__codigo', 'origen__numero']
-        # ← Evitar conexiones duplicadas
         unique_together     = [['origen', 'destino']]
 
     def __str__(self):

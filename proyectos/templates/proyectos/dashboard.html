@@ -4,16 +4,10 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="text-primary">
-        📊 Dashboard de Proyectos
-    </h1>
+    <h1 class="text-primary">📊 Dashboard de Proyectos</h1>
     <div>
-        <a class="btn btn-outline-primary me-2" href="{% url 'proyectos:list' %}">
-            📋 Lista Completa
-        </a>
-        <a class="btn btn-primary" href="{% url 'proyectos:create' %}">
-            ➕ Nuevo Proyecto
-        </a>
+        <a class="btn btn-outline-primary me-2" href="{% url 'proyectos:list' %}">📋 Lista Completa</a>
+        <a class="btn btn-primary" href="{% url 'proyectos:create' %}">➕ Nuevo Proyecto</a>
     </div>
 </div>
 
@@ -22,7 +16,7 @@
     <div class="col-md-2">
         <div class="card text-center">
             <div class="card-body">
-                <h3 class="text-primary">{{ total_proyectos }}</h3>
+                <h3 class="text-primary">{{ total_proyectos|default:0 }}</h3>
                 <small class="text-muted">Total Proyectos</small>
             </div>
         </div>
@@ -30,7 +24,7 @@
     <div class="col-md-2">
         <div class="card text-center">
             <div class="card-body">
-                <h3 class="text-success">{{ proyectos_activos }}</h3>
+                <h3 class="text-success">{{ proyectos_activos|default:0 }}</h3>
                 <small class="text-muted">Activos</small>
             </div>
         </div>
@@ -38,7 +32,7 @@
     <div class="col-md-2">
         <div class="card text-center">
             <div class="card-body">
-                <h3 class="text-warning">{{ proyectos_paralizados_count }}</h3>
+                <h3 class="text-warning">{{ proyectos_paralizados_count|default:0 }}</h3>
                 <small class="text-muted">Paralizados</small>
             </div>
         </div>
@@ -46,7 +40,7 @@
     <div class="col-md-2">
         <div class="card text-center">
             <div class="card-body">
-                <h3 class="text-danger">{{ proyectos_retrasados_count }}</h3>
+                <h3 class="text-danger">{{ proyectos_retrasados_count|default:0 }}</h3>
                 <small class="text-muted">Retrasados</small>
             </div>
         </div>
@@ -54,7 +48,7 @@
     <div class="col-md-2">
         <div class="card text-center">
             <div class="card-body">
-                <h3 class="text-danger">{{ proyectos_sobre_presupuesto_count }}</h3>
+                <h3 class="text-danger">{{ proyectos_sobre_presupuesto_count|default:0 }}</h3>
                 <small class="text-muted">Sobre Presup.</small>
             </div>
         </div>
@@ -62,7 +56,7 @@
     <div class="col-md-2">
         <div class="card text-center">
             <div class="card-body">
-                <h3 class="text-info">{{ progreso_promedio }}%</h3>
+                <h3 class="text-info">{{ progreso_promedio|default:0 }}%</h3>
                 <small class="text-muted">Progreso Prom.</small>
             </div>
         </div>
@@ -75,81 +69,66 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">🚨 Proyectos que Necesitan Atención</h5>
-                <span class="badge bg-danger">{{ proyectos_criticos|length }}</span>
+                <span class="badge bg-danger">{{ proyectos_criticos|length|default:0 }}</span>
             </div>
             <div class="card-body p-0">
                 {% if proyectos_criticos %}
-                    <div class="table-responsive">
-                        <table class="table table-dark table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Código</th>
-                                    <th>Proyecto</th>
-                                    <th>Estado</th>
-                                    <th>Prioridad</th>
-                                    <th>Progreso</th>
-                                    <th>Días Retraso</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for proyecto in proyectos_criticos %}
-                                <tr>
-                                    <td>
-                                        <span class="badge bg-primary">{{ proyecto.codigo }}</span>
-                                    </td>
-                                    <td>
-                                        <div>
-                                            <strong>{{ proyecto.nombre_edificio|truncatechars:30 }}</strong>
-                                            <br><small class="text-muted">{{ proyecto.distrito }}</small>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Proyecto</th>
+                                <th>Estado</th>
+                                <th>Prioridad</th>
+                                <th>Progreso</th>
+                                <th>Días Retraso</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in proyectos_criticos %}
+                            <tr>
+                                <td><span class="badge bg-primary">{{ p.codigo }}</span></td>
+                                <td>
+                                    <strong>{{ p.nombre_edificio|truncatechars:30 }}</strong><br>
+                                    <small class="text-muted">{{ p.distrito }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge {% if p.estado == 'paralizado' %}bg-warning{% elif p.estado == 'en_construccion' %}bg-info{% else %}bg-secondary{% endif %}">
+                                        {{ p.get_estado_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge {% if p.prioridad == 'alta' %}bg-danger{% elif p.prioridad == 'media' %}bg-warning{% else %}bg-success{% endif %}">
+                                        {{ p.get_prioridad_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar {% if p.progreso_porcentaje < 30 %}bg-danger{% elif p.progreso_porcentaje < 70 %}bg-warning{% else %}bg-success{% endif %}"
+                                            role="progressbar"
+                                            style="width: {{ p.progreso_porcentaje }}%">
+                                            {{ p.progreso_porcentaje }}%
                                         </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge 
-                                            {% if proyecto.estado == 'paralizado' %}bg-warning
-                                            {% elif proyecto.estado == 'en_construccion' %}bg-info
-                                            {% else %}bg-secondary{% endif %}">
-                                            {{ proyecto.get_estado_display }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="badge 
-                                            {% if proyecto.prioridad == 'alta' %}bg-danger
-                                            {% elif proyecto.prioridad == 'media' %}bg-warning
-                                            {% else %}bg-success{% endif %}">
-                                            {{ proyecto.get_prioridad_display }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="progress" style="height: 20px;">
-                                            <div class="progress-bar 
-                                                {% if proyecto.progreso_porcentaje < 30 %}bg-danger
-                                                {% elif proyecto.progreso_porcentaje < 70 %}bg-warning
-                                                {% else %}bg-success{% endif %}"
-                                                role="progressbar"
-                                                style="width: {{ proyecto.progreso_porcentaje }}%">
-                                                {{ proyecto.progreso_porcentaje }}%
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        {% if proyecto.dias_retraso > 0 %}
-                                            <span class="badge bg-danger">
-                                                {{ proyecto.dias_retraso }} días
-                                            </span>
-                                        {% else %}
-                                            <span class="badge bg-success">En tiempo</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if p.dias_retraso > 0 %}
+                                        <span class="badge bg-danger">{{ p.dias_retraso }} días</span>
+                                    {% else %}
+                                        <span class="badge bg-success">En tiempo</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
                 {% else %}
-                    <div class="text-center py-4">
-                        <h4 class="text-success">🎉 ¡Excelente!</h4>
-                        <p class="text-muted">No hay proyectos que requieran atención inmediata</p>
-                    </div>
+                <div class="text-center py-4">
+                    <h4 class="text-success">🎉 ¡Excelente!</h4>
+                    <p class="text-muted">No hay proyectos que requieran atención inmediata</p>
+                </div>
                 {% endif %}
             </div>
         </div>
@@ -158,33 +137,31 @@
     <!-- ESTADÍSTICAS POR ESTADO -->
     <div class="col-lg-4 mb-4">
         <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">📈 Distribución por Estado</h5>
-            </div>
+            <div class="card-header"><h5 class="mb-0">📈 Distribución por Estado</h5></div>
             <div class="card-body">
-                {% for estado in estados_stats %}
+                {% if estados_stats %}
+                    {% for e in estados_stats %}
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span>
-                            {% if estado.estado == 'planificacion' %}📋 Planificación
-                            {% elif estado.estado == 'aprobado' %}✅ Aprobado
-                            {% elif estado.estado == 'en_construccion' %}🏗️ En Construcción
-                            {% elif estado.estado == 'paralizado' %}⚠️ Paralizado
-                            {% elif estado.estado == 'completado' %}🎉 Completado
-                            {% elif estado.estado == 'cancelado' %}❌ Cancelado
+                            {% if e.estado == 'planificacion' %}📋 Planificación
+                            {% elif e.estado == 'aprobado' %}✅ Aprobado
+                            {% elif e.estado == 'en_construccion' %}🏗️ En Construcción
+                            {% elif e.estado == 'paralizado' %}⚠️ Paralizado
+                            {% elif e.estado == 'completado' %}🎉 Completado
+                            {% elif e.estado == 'cancelado' %}❌ Cancelado
                             {% endif %}
                         </span>
-                        <span class="badge bg-secondary">{{ estado.cantidad }}</span>
+                        <span class="badge bg-secondary">{{ e.cantidad }}</span>
                     </div>
                     <div class="progress mb-3" style="height: 8px;">
-                        <div class="progress-bar 
-                            {% if estado.estado == 'paralizado' %}bg-warning
-                            {% elif estado.estado == 'completado' %}bg-success
-                            {% elif estado.estado == 'en_construccion' %}bg-info
-                            {% else %}bg-secondary{% endif %}"
-                            style="width: {{ estado.cantidad|mul:100|div:total_proyectos }}%">
+                        <div class="progress-bar {% if e.estado == 'paralizado' %}bg-warning{% elif e.estado == 'completado' %}bg-success{% elif e.estado == 'en_construccion' %}bg-info{% else %}bg-secondary{% endif %}"
+                            style="width:{% if total_proyectos %}{% widthratio e.cantidad total_proyectos 100 %}{% else %}0{% endif %}%">
                         </div>
                     </div>
-                {% endfor %}
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No hay datos de estados disponibles</p>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -195,9 +172,7 @@
 <div class="row mb-4">
     <div class="col-12">
         <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">⚠️ Proyectos Paralizados</h5>
-            </div>
+            <div class="card-header"><h5 class="mb-0">⚠️ Proyectos Paralizados</h5></div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-dark table-hover mb-0">
@@ -212,29 +187,23 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for proyecto in proyectos_paralizados %}
+                            {% for p in proyectos_paralizados %}
                             <tr>
+                                <td><span class="badge bg-primary">{{ p.codigo }}</span></td>
                                 <td>
-                                    <span class="badge bg-primary">{{ proyecto.codigo }}</span>
+                                    <strong>{{ p.nombre_edificio }}</strong><br>
+                                    <small class="text-muted">{{ p.distrito }}</small>
                                 </td>
                                 <td>
-                                    <div>
-                                        <strong>{{ proyecto.nombre_edificio }}</strong>
-                                        <br><small class="text-muted">{{ proyecto.distrito }}</small>
-                                    </div>
-                                </td>
-                                <td>
-                                    {% if proyecto.responsable %}
-                                        {{ proyecto.responsable.get_full_name|default:proyecto.responsable.username }}
+                                    {% if p.responsable %}
+                                        {{ p.responsable.get_full_name|default:p.responsable.username }}
                                     {% else %}
                                         <span class="text-muted">Sin asignar</span>
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if proyecto.dias_desde_inicio %}
-                                        <span class="badge bg-warning">
-                                            {{ proyecto.dias_desde_inicio }} días
-                                        </span>
+                                    {% if p.dias_desde_inicio %}
+                                        <span class="badge bg-warning">{{ p.dias_desde_inicio }} días</span>
                                     {% else %}
                                         <span class="text-muted">Sin fecha inicio</span>
                                     {% endif %}
@@ -243,14 +212,12 @@
                                     <div class="progress" style="height: 20px;">
                                         <div class="progress-bar bg-warning"
                                             role="progressbar"
-                                            style="width: {{ proyecto.progreso_porcentaje }}%">
-                                            {{ proyecto.progreso_porcentaje }}%
+                                            style="width: {{ p.progreso_porcentaje }}%">
+                                            {{ p.progreso_porcentaje }}%
                                         </div>
                                     </div>
                                 </td>
-                                <td>
-                                    <small>{{ proyecto.observaciones|truncatechars:50|default:"Sin observaciones" }}</small>
-                                </td>
+                                <td><small>{{ p.observaciones|truncatechars:50|default:"Sin observaciones" }}</small></td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -262,39 +229,31 @@
 </div>
 {% endif %}
 
-<!-- ACTIVIDAD RECIENTE -->
 <div class="row">
-    <div class="col-lg-6">
+    <!-- ACTIVIDAD RECIENTE -->
+    <div class="col-lg-6 mb-4">
         <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">🕐 Actividad Reciente</h5>
-            </div>
+            <div class="card-header"><h5 class="mb-0">🕐 Actividad Reciente</h5></div>
             <div class="card-body">
                 {% if actividad_reciente %}
-                    {% for actividad in actividad_reciente %}
-                        <div class="d-flex align-items-start mb-3">
-                            <div class="me-3">
-                                <span class="badge bg-info rounded-pill">
-                                    {{ actividad.fecha_registro|date:"d/m" }}
-                                </span>
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between">
-                                    <strong>{{ actividad.proyecto.codigo }}</strong>
-                                    <small class="text-muted">
-                                        {{ actividad.fecha_registro|time:"H:i" }}
-                                    </small>
-                                </div>
-                                <div class="text-muted small">
-                                    {% if actividad.estado_anterior %}
-                                        {{ actividad.get_estado_anterior_display }} → 
-                                    {% endif %}
-                                    {{ actividad.get_estado_nuevo_display }}
-                                </div>
-                                <div class="small">{{ actividad.comentario|truncatechars:80 }}</div>
-                            </div>
+                    {% for act in actividad_reciente %}
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="me-3">
+                            <span class="badge bg-info rounded-pill">{{ act.fecha_registro|date:"d/m" }}</span>
                         </div>
-                        {% if not forloop.last %}<hr class="my-2">{% endif %}
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <strong>{{ act.proyecto.codigo }}</strong>
+                                <small class="text-muted">{{ act.fecha_registro|time:"H:i" }}</small>
+                            </div>
+                            <div class="text-muted small">
+                                {% if act.estado_anterior %}{{ act.get_estado_anterior_display }} → {% endif %}
+                                {{ act.get_estado_nuevo_display }}
+                            </div>
+                            <div class="small">{{ act.comentario|truncatechars:80 }}</div>
+                        </div>
+                    </div>
+                    {% if not forloop.last %}<hr class="my-2">{% endif %}
                     {% endfor %}
                 {% else %}
                     <p class="text-muted text-center">No hay actividad reciente</p>
@@ -302,43 +261,44 @@
             </div>
         </div>
     </div>
-    
-    <div class="col-lg-6">
+
+    <!-- TAREAS PENDIENTES -->
+    <div class="col-lg-6 mb-4">
         <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">📋 Tareas Pendientes</h5>
-            </div>
+            <div class="card-header"><h5 class="mb-0">📋 Tareas Pendientes</h5></div>
             <div class="card-body">
                 {% if tareas_pendientes %}
-                    {% for tarea in tareas_pendientes %}
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="me-3">
-                                <span class="badge 
-                                    {% if tarea.estado == 'bloqueada' %}bg-danger
-                                    {% elif tarea.estado == 'en_progreso' %}bg-info
-                                    {% else %}bg-secondary{% endif %} rounded-pill">
-                                    {% if tarea.estado == 'bloqueada' %}🚫
-                                    {% elif tarea.estado == 'en_progreso' %}🔄
-                                    {% else %}⏳{% endif %}
-                                </span>
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between">
-                                    <strong>{{ tarea.proyecto.codigo }}</strong>
-                                    {% if tarea.fecha_fin %}
-                                        <small class="text-muted">
-                                            {{ tarea.fecha_fin|date:"d/m/Y" }}
-                                        </small>
-                                    {% endif %}
-                                </div>
-                                <div>{{ tarea.nombre }}</div>
-                                {% if tarea.responsable %}
-                                    <small class="text-muted">
-                                        Responsable: {{ tarea.responsable.get_full_name|default:tarea.responsable.username }}
-                                    </small>
+                    {% for t in tareas_pendientes %}
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <span class="badge rounded-pill {% if t.estado == 'bloqueada' %}bg-danger{% elif t.estado == 'en_progreso' %}bg-info{% else %}bg-secondary{% endif %}">
+                                {% if t.estado == 'bloqueada' %}🚫
+                                {% elif t.estado == 'en_progreso' %}🔄
+                                {% else %}⏳{% endif %}
+                            </span>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <strong>{{ t.proyecto.codigo }}</strong>
+                                {% if t.fecha_fin %}
+                                <small class="text-muted">{{ t.fecha_fin|date:"d/m/Y" }}</small>
                                 {% endif %}
                             </div>
+                            <div>{{ t.nombre }}</div>
+                            {% if t.responsable %}
+                            <small class="text-muted">
+                                Responsable: {{ t.responsable.get_full_name|default:t.responsable.username }}
+                            </small>
+                            {% endif %}
                         </div>
-                        {% if not forloop.last %}<hr class="my-2">{% endif %}
+                    </div>
+                    {% if not forloop.last %}<hr class="my-2">{% endif %}
                     {% endfor %}
-                {% else
+                {% else %}
+                    <p class="text-muted text-center">No hay tareas pendientes</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
