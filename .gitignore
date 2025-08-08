@@ -18,7 +18,3 @@ venv/
 # Django generados
 staticfiles/
 media/
-*.sqlite3
-*.log
-staticfiles/
-media/
