@@ -7,6 +7,7 @@ __pycache__/
 # Entornos
 .env
 .env.*
+!.env.example
 env/
 venv/
 
