@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WinFibra Dashboard - Analytics & Control Center</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --primary: #00D4AA;
+            --primary-dark: #00B894;
+            --secondary: #0984E3;
+            --accent: #6C5CE7;
+            --warning: #FDCB6E;
+            --danger: #E84393;
+            --success: #00B894;
+            --dark: #0F0F23;
+            --dark-2: #1A1A2E;
+            --dark-3: #16213E;
+            --dark-4: #2D3748;
+            --light: #F8F9FA;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0AEC0;
+            --border: rgba(255, 255, 255, 0.1);
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--dark-2) 50%, var(--dark-3) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .logo i {
+            font-size: 28px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            font-size: 14px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        /* Main Layout */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 24px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #fff, rgba(255,255,255,0.8));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 3rem;
+        }
+
+        .kpi-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 212, 170, 0.15);
+            border-color: var(--primary);
+        }
+
+        .kpi-header {
+            display: flex;
+            justify-content: between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .kpi-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 1rem;
+        }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
+        }
+
+        .kpi-trend {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .trend-up { color: var(--success); }
+        .trend-down { color: var(--danger); }
+
+        /* Chart Containers */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 3rem;
+        }
+
+        .chart-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        /* Activity Panel */
+        .activity-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 3rem;
+        }
+
+        .activity-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .activity-time {
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        /* Map Container */
+        .map-section {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .map-container {
+            height: 400px;
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--dark-3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .action-btn {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .action-btn:hover {
+            background: var(--primary);
+            color: var(--dark);
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .action-icon {
+            font-size: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+
+            .hero {
+                padding: 2rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .activity-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-network-wired"></i>
+                WinFibra Analytics
+            </div>
+            <div class="header-actions">
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    Sistema Operativo - Lima, Perú
+                </div>
+                <button class="action-btn" onclick="window.location.href='/admin/'">
+                    <i class="fas fa-cog action-icon"></i>
+                    Admin
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Hero Section -->
+        <section class="hero fade-in">
+            <div class="hero-content">
+                <h1>Centro de Control de Fibra Óptica</h1>
+                <p>Monitoreo en tiempo real de la infraestructura de telecomunicaciones más avanzada del Perú</p>
+                <div style="display: flex; gap: 16px; margin-top: 2rem;">
+                    <button class="action-btn" onclick="window.location.href='/mufas/mapa/'">
+                        <i class="fas fa-map action-icon"></i>
+                        Mapa Interactivo
+                    </button>
+                    <button class="action-btn" onclick="window.location.href='/proyectos/'">
+                        <i class="fas fa-chart-line action-icon"></i>
+                        Analytics
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- KPI Cards -->
+        <section class="kpi-grid fade-in">
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background: linear-gradient(135deg, var(--primary), var(--success));">
+                    <i class="fas fa-network-wired"></i>
+                </div>
+                <div class="kpi-value" id="totalMufas">2,847</div>
+                <div class="kpi-label">Mufas Operativas</div>
+                <div class="kpi-trend trend-up">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+12% vs mes anterior</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background: linear-gradient(135deg, var(--secondary), var(--accent));">
+                    <i class="fas fa-fiber-optic"></i>
+                </div>
+                <div class="kpi-value" id="hilosDisponibles">18,432</div>
+                <div class="kpi-label">Hilos Disponibles</div>
+                <div class="kpi-trend trend-down">
+                    <i class="fas fa-arrow-down"></i>
+                    <span>-3% vs semana anterior</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background: linear-gradient(135deg, var(--warning), var(--danger));">
+                    <i class="fas fa-building"></i>
+                </div>
+                <div class="kpi-value" id="proyectosActivos">167</div>
+                <div class="kpi-label">Proyectos Activos</div>
+                <div class="kpi-trend trend-up">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+8% vs mes anterior</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background: linear-gradient(135deg, var(--success), var(--primary));">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="kpi-value" id="ocupacionPromedio">78.5%</div>
+                <div class="kpi-label">Ocupación Promedio</div>
+                <div class="kpi-trend trend-up">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+5.2% vs mes anterior</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Section -->
+        <section class="charts-grid fade-in">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Evolución de Capacidad de Red</h3>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="action-btn" style="padding: 8px 16px; font-size: 12px;">7D</button>
+                        <button class="action-btn" style="padding: 8px 16px; font-size: 12px; background: var(--primary); color: var(--dark);">30D</button>
+                        <button class="action-btn" style="padding: 8px 16px; font-size: 12px;">90D</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="capacityChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Distribución por Distrito</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="distributionChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Activity Panel -->
+        <section class="activity-panel fade-in">
+            <div class="activity-card">
+                <h3 style="margin-bottom: 1.5rem;">Actividad Reciente</h3>
+                <div class="activity-item">
+                    <div class="activity-icon" style="background: var(--success);">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">Nueva mufa instalada - MF-2847</div>
+                        <div class="activity-time">San Isidro • Hace 15 min</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon" style="background: var(--warning);">
+                        <i class="fas fa-wrench"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">Mantenimiento programado</div>
+                        <div class="activity-time">Miraflores • Hace 1 hora</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon" style="background: var(--primary);">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">Proyecto PRY-167 completado</div>
+                        <div class="activity-time">Surco • Hace 2 horas</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="activity-card">
+                <h3 style="margin-bottom: 1.5rem;">Alertas del Sistema</h3>
+                <div class="activity-item">
+                    <div class="activity-icon" style="background: var(--danger);">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">Alta ocupación en zona norte</div>
+                        <div class="activity-time">Los Olivos • Crítico</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon" style="background: var(--warning);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">Proyecto retrasado - PRY-145</div>
+                        <div class="activity-time">Villa El Salvador • 5 días</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon" style="background: var(--secondary);">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">Actualización de firmware</div>
+                        <div class="activity-time">Sistema • Programado</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Map Section -->
+        <section class="map-section fade-in">
+            <div class="chart-header">
+                <h3 class="chart-title">Vista General de la Red</h3>
+                <button class="action-btn" onclick="window.location.href='/mufas/mapa/'">
+                    <i class="fas fa-expand action-icon"></i>
+                    Ver Mapa Completo
+                </button>
+            </div>
+            <div class="map-container">
+                <div style="text-align: center;">
+                    <i class="fas fa-map-marked-alt" style="font-size: 48px; margin-bottom: 16px;"></i>
+                    <p>Mapa Interactivo de la Red de Fibra Óptica</p>
+                    <p style="margin-top: 8px; font-size: 14px;">Haz clic en "Ver Mapa Completo" para acceder al control avanzado</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="quick-actions fade-in">
+            <a href="/mufas/mapa/" class="action-btn">
+                <i class="fas fa-search-location action-icon"></i>
+                <span>Buscar Hilos</span>
+            </a>
+            <a href="/proyectos/crear/" class="action-btn">
+                <i class="fas fa-plus action-icon"></i>
+                <span>Nuevo Proyecto</span>
+            </a>
+            <a href="/admin/mufas/mufa/add/" class="action-btn">
+                <i class="fas fa-network-wired action-icon"></i>
+                <span>Registrar Mufa</span>
+            </a>
+            <a href="/proyectos/" class="action-btn">
+                <i class="fas fa-chart-bar action-icon"></i>
+                <span>Analytics</span>
+            </a>
+            <a href="/admin/" class="action-btn">
+                <i class="fas fa-cog action-icon"></i>
+                <span>Configuración</span>
+            </a>
+        </section>
+    </div>
+
+    <script>
+        // Configuración de Chart.js
+        Chart.defaults.color = '#A0AEC0';
+        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+        Chart.defaults.backgroundColor = 'rgba(0, 212, 170, 0.1)';
+
+        // Gráfico de Capacidad
+        const capacityCtx = document.getElementById('capacityChart').getContext('2d');
+        const capacityChart = new Chart(capacityCtx, {
+            type: 'line',
+            data: {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago'],
+                datasets: [{
+                    label: 'Hilos Ocupados',
+                    data: [12000, 15000, 18000, 22000, 25000, 28000, 31000, 34000],
+                    borderColor: '#00D4AA',
+                    backgroundColor: 'rgba(0, 212, 170, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: 'Capacidad Total',
+                    data: [50000, 52000, 54000, 56000, 58000, 60000, 62000, 64000],
+                    borderColor: '#0984E3',
+                    backgroundColor: 'rgba(9, 132, 227, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico de Distribución
+        const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+        const distributionChart = new Chart(distributionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['San Isidro', 'Miraflores', 'Surco', 'La Molina', 'Otros'],
+                datasets: [{
+                    data: [25, 20, 18, 15, 22],
+                    backgroundColor: [
+                        '#00D4AA',
+                        '#0984E3',
+                        '#6C5CE7',
+                        '#FDCB6E',
+                        '#E84393'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Animación de contadores
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            const range = end - start;
+            const increment = end > start ? 1 : -1;
+            const stepTime = Math.abs(Math.floor(duration / range));
+            let current = start;
+            const timer = setInterval(function() {
+                current += increment;
+                obj.innerHTML = current.toLocaleString();
+                if (current === end) {
+                    clearInterval(timer);
+                }
+            }, stepTime);
+        }
+
+        // Simular datos en tiempo real
+        function updateKPIs() {
+            const totalMufas = Math.floor(Math.random() * 100) + 2800;
+            const hilosDisponibles = Math.floor(Math.random() * 1000) + 18000;
+            const proyectosActivos = Math.floor(Math.random() * 20) + 160;
+            const ocupacionPromedio = (Math.random() * 10 + 75).toFixed(1);
+
+            document.getElementById('totalMufas').textContent = totalMufas.toLocaleString();
+            document.getElementById('hilosDisponibles').textContent = hilosDisponibles.toLocaleString();
+            document.getElementById('proyectosActivos').textContent = proyectosActivos.toLocaleString();
+            document.getElementById('ocupacionPromedio').textContent = ocupacionPromedio + '%';
+        }
+
+        // Actualizar KPIs cada 30 segundos
+        setInterval(updateKPIs, 30000);
+
+        // Animación inicial
+        setTimeout(() => {
+            animateValue('totalMufas', 0, 2847, 2000);
+            animateValue('hilosDisponibles', 0, 18432, 2000);
+            animateValue('proyectosActivos', 0, 167, 2000);
+        }, 500);
+    </script>
+</body>
+</html>

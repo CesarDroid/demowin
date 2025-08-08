@@ -88,3 +88,66 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# AGREGAR estas configuraciones al final del archivo existente:
+
+# === CONFIGURACIÓN PARA DASHBOARDS PROFESIONALES ===
+
+# Cache para mejor performance
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'winfibra-cache',
+        'TIMEOUT': 300,  # 5 minutos
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000,
+        }
+    }
+}
+
+# Configuración de logging para analytics
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'django_analytics.log',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'winfibra.analytics': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
+
+# Configuración de APIs
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/hour',
+        'user': '1000/hour'
+    }
+}
+
+# Configuración de seguridad para APIs
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
+CORS_ALLOW_ALL_ORIGINS = DEBUG  # Solo en desarrollo
+
+# Configuración de archivos estáticos adicionales
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+    BASE_DIR / "assets",  # Para archivos del dashboard
+]

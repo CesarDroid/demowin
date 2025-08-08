@@ -1,24 +1,15 @@
-# proyectos/urls.py - CON DASHBOARD
 from django.urls import path
-from .views import (
-    ProyectoListView, 
-    CrearProyectoView, 
-    DashboardProyectosView,
-    ProyectoDetalleView
-)
+from django.shortcuts import render
 
 app_name = "proyectos"
 
+def proyecto_dashboard(request):
+    return render(request, 'proyectos/dashboard.html', {'demo': True})
+
+def proyecto_list(request):
+    return render(request, 'proyectos/proyecto_list.html', {'proyectos': []})
+
 urlpatterns = [
-    # Dashboard principal - nueva página de inicio
-    path("", DashboardProyectosView.as_view(), name="dashboard"),
-    
-    # Lista completa de proyectos
-    path("lista/", ProyectoListView.as_view(), name="list"),
-    
-    # Crear proyecto
-    path("crear/", CrearProyectoView.as_view(), name="create"),
-    
-    # Ver detalle de proyecto
-    path("detalle/<int:pk>/", ProyectoDetalleView.as_view(), name="detail"),
+    path("", proyecto_dashboard, name="dashboard"),
+    path("lista/", proyecto_list, name="list"),
 ]

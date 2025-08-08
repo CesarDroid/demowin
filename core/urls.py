@@ -1,38 +1,38 @@
-# core/urls.py - ACTUALIZADO PARA INCLUIR DASHBOARD
-
 from django.contrib import admin
 from django.urls import path, include
-from django.shortcuts import redirect
-from .views import DashboardHomeView
+from django.shortcuts import redirect, render
+from django.conf import settings
+from django.conf.urls.static import static
 
 def redirect_to_dashboard(request):
-    """Redirige la página principal al dashboard"""
-    return redirect('dashboard_home')
+    return redirect('/dashboard/')
+
+def dashboard_view(request):
+    return render(request, 'dashboards/home.html', {'demo': True})
+
+def analytics_view(request):
+    return render(request, 'demos/analytics_estatico.html', {'demo': True})
 
 urlpatterns = [
-    # Página principal - redirige al dashboard
+    # Página principal
     path('', redirect_to_dashboard, name='home'),
     
-    # Dashboard principal
-    path('dashboard/', DashboardHomeView.as_view(), name='dashboard_home'),
+    # Dashboard básico
+    path('dashboard/', dashboard_view, name='dashboard_home'),
+    path('analytics/', analytics_view, name='analytics_dashboard'),
+    
+    # Demos estáticos
+    path('demo/dashboard/', lambda request: render(request, 'demos/dashboard_estatico.html'), name='demo_dashboard'),
+    path('demo/analytics/', lambda request: render(request, 'demos/analytics_estatico.html'), name='demo_analytics'),
     
     # Panel de administración
     path('admin/', admin.site.urls),
     
-    # Módulo de mufas (mapa, JSON, asignaciones)
-    path('mufas/', include('mufas.urls', namespace='mufas')),
-    
-    # Módulo de proyectos (dashboard, creación, listado)
+    # Módulos
     path('proyectos/', include('proyectos.urls', namespace='proyectos')),
-    
-    # Módulo de roles/permisos
+    path('mufas/', include('mufas.urls', namespace='mufas')),
     path('roles/', include('roles.urls', namespace='roles')),
 ]
 
-# Configuración para archivos estáticos en desarrollo
-from django.conf import settings
-from django.conf.urls.static import static
-
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

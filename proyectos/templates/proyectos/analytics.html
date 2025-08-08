@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics de Proyectos - WinFibra{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <div>
+        <h1 class="page-title">Analytics de Proyectos</h1>
+        <p class="page-subtitle">Análisis avanzado de rendimiento de proyectos</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3>ROI Promedio</h3>
+            </div>
+            <div class="card-body text-center">
+                <h2 class="text-primary">{{ roi_promedio|default:"184.5" }}%</h2>
+                <p class="text-secondary">Retorno de inversión promedio</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3>Eficiencia Promedio</h3>
+            </div>
+            <div class="card-body text-center">
+                <h2 class="text-success">{{ eficiencia_promedio|default:"87.2" }}%</h2>
+                <p class="text-secondary">Eficiencia operativa promedio</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h3>Próximamente</h3>
+    </div>
+    <div class="card-body">
+        <p>Esta sección contendrá análisis avanzados de proyectos, incluyendo:</p>
+        <ul>
+            <li>Gráficos de tendencias</li>
+            <li>Comparativas por distrito</li>
+            <li>Análisis de costos</li>
+            <li>Predicciones de finalización</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
