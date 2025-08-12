@@ -1,60 +1,222 @@
-# roles/management/commands/init_roles.py
-
+# roles/management/commands/init_roles.py - Inicializar Roles y Áreas
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import Group, Permission
-from django.contrib.contenttypes.models import ContentType
-from mufas.models import Mufa, Hilo, Conexion
+from django.contrib.auth.models import User
+from roles.models import AreaTrabajo, RolUsuario, PerfilUsuario
 
 class Command(BaseCommand):
-    help = "Inicializa roles y permisos para Planificador, Coordinador, Supervisor, JefeÁrea y GerenteÁrea"
+    help = 'Inicializar áreas de trabajo y roles del sistema WinFibra'
 
     def handle(self, *args, **options):
-        # ContentTypes de los modelos de mufas
-        ct_mufa  = ContentType.objects.get_for_model(Mufa)
-        ct_hilo  = ContentType.objects.get_for_model(Hilo)
-        ct_conx  = ContentType.objects.get_for_model(Conexion)
+        self.stdout.write(
+            self.style.SUCCESS('🚀 Inicializando sistema de roles WinFibra...')
+        )
 
-        # Permisos a usar
-        perms = {
-            'view_mufa':       Permission.objects.get(codename='view_mufa',       content_type=ct_mufa),
-            'add_mufa':        Permission.objects.get(codename='add_mufa',        content_type=ct_mufa),
-            'change_mufa':     Permission.objects.get(codename='change_mufa',     content_type=ct_mufa),
+        # 1. Crear Áreas de Trabajo
+        areas_data = [
+            {
+                'codigo': 'comercial',
+                'nombre': 'Área Comercial',
+                'descripcion': 'Encargada de la captación de clientes y creación de proyectos comerciales'
+            },
+            {
+                'codigo': 'planificacion',
+                'nombre': 'Área de Planificación',
+                'descripcion': 'Responsable del registro de hilos y asignación a edificios'
+            },
+            {
+                'codigo': 'construccion',
+                'nombre': 'Área de Construcción',
+                'descripcion': 'Ejecuta los proyectos y realiza la instalación física'
+            },
+            {
+                'codigo': 'administracion',
+                'nombre': 'Administración',
+                'descripcion': 'Gestión general del sistema y supervisión'
+            }
+        ]
 
-            'view_hilo':       Permission.objects.get(codename='view_hilo',       content_type=ct_hilo),
-            'change_hilo':     Permission.objects.get(codename='change_hilo',     content_type=ct_hilo),
+        self.stdout.write('📋 Creando áreas de trabajo...')
+        for area_info in areas_data:
+            area, created = AreaTrabajo.objects.get_or_create(
+                codigo=area_info['codigo'],
+                defaults={
+                    'nombre': area_info['nombre'],
+                    'descripcion': area_info['descripcion'],
+                    'activa': True
+                }
+            )
+            if created:
+                self.stdout.write(f'   ✅ Área creada: {area.nombre}')
+            else:
+                self.stdout.write(f'   ℹ️  Área existe: {area.nombre}')
 
-            'view_conexion':   Permission.objects.get(codename='view_conexion',   content_type=ct_conx),
-            'add_conexion':    Permission.objects.get(codename='add_conexion',    content_type=ct_conx),
-            'change_conexion': Permission.objects.get(codename='change_conexion', content_type=ct_conx),
-        }
+        # 2. Crear Roles
+        roles_data = [
+            # Área Comercial
+            {
+                'codigo': 'comercial',
+                'nombre': 'Comercial',
+                'area_codigo': 'comercial',
+                'descripcion': 'Crea proyectos comerciales y gestiona clientes',
+                'permisos': {
+                    'puede_crear_proyectos': True,
+                    'puede_editar_proyectos': True,
+                    'puede_ver_dashboard': True,
+                    'puede_ver_analytics': True,
+                }
+            },
+            {
+                'codigo': 'supervisor_comercial',
+                'nombre': 'Supervisor Comercial',
+                'area_codigo': 'comercial',
+                'descripcion': 'Supervisa el área comercial y todos los proyectos',
+                'permisos': {
+                    'puede_crear_proyectos': True,
+                    'puede_editar_proyectos': True,
+                    'puede_ver_dashboard': True,
+                    'puede_ver_analytics': True,
+                    'puede_ver_mapa_mufas': True,
+                }
+            },
+            
+            # Área de Planificación
+            {
+                'codigo': 'planificador',
+                'nombre': 'Planificador',
+                'area_codigo': 'planificacion',
+                'descripcion': 'Registra hilos y los asigna a edificios',
+                'permisos': {
+                    'puede_asignar_hilos': True,
+                    'puede_ver_mapa_mufas': True,
+                    'puede_ver_dashboard': True,
+                }
+            },
+            {
+                'codigo': 'supervisor_planificacion',
+                'nombre': 'Supervisor de Planificación',
+                'area_codigo': 'planificacion',
+                'descripcion': 'Supervisa la planificación y asignación de recursos',
+                'permisos': {
+                    'puede_asignar_hilos': True,
+                    'puede_ver_mapa_mufas': True,
+                    'puede_ver_dashboard': True,
+                    'puede_ver_analytics': True,
+                    'puede_editar_proyectos': True,
+                }
+            },
+            
+            # Área de Construcción
+            {
+                'codigo': 'constructor',
+                'nombre': 'Constructor',
+                'area_codigo': 'construccion',
+                'descripcion': 'Ejecuta proyectos y visualiza hilos asignados',
+                'permisos': {
+                    'puede_ver_mapa_mufas': True,
+                    'puede_ver_dashboard': True,
+                }
+            },
+            {
+                'codigo': 'supervisor_construccion',
+                'nombre': 'Supervisor de Construcción',
+                'area_codigo': 'construccion',
+                'descripcion': 'Supervisa la construcción y ejecución de proyectos',
+                'permisos': {
+                    'puede_ver_mapa_mufas': True,
+                    'puede_ver_dashboard': True,
+                    'puede_ver_analytics': True,
+                    'puede_editar_proyectos': True,
+                }
+            },
+            
+            # Administración
+            {
+                'codigo': 'admin_sistema',
+                'nombre': 'Administrador del Sistema',
+                'area_codigo': 'administracion',
+                'descripcion': 'Acceso completo al sistema',
+                'permisos': {
+                    'puede_crear_proyectos': True,
+                    'puede_editar_proyectos': True,
+                    'puede_asignar_hilos': True,
+                    'puede_ver_dashboard': True,
+                    'puede_ver_mapa_mufas': True,
+                    'puede_ver_analytics': True,
+                }
+            }
+        ]
 
-        # 1) Planificador: puede ver y cambiar Hilo
-        plan = Group.objects.get_or_create(name='Planificador')[0]
-        plan.permissions.set([perms['view_hilo'], perms['change_hilo']])
+        self.stdout.write('👥 Creando roles de usuario...')
+        for rol_info in roles_data:
+            area = AreaTrabajo.objects.get(codigo=rol_info['area_codigo'])
+            rol, created = RolUsuario.objects.get_or_create(
+                codigo=rol_info['codigo'],
+                defaults={
+                    'nombre': rol_info['nombre'],
+                    'area': area,
+                    'descripcion': rol_info['descripcion']
+                }
+            )
+            if created:
+                self.stdout.write(f'   ✅ Rol creado: {rol.nombre} ({area.nombre})')
+            else:
+                self.stdout.write(f'   ℹ️  Rol existe: {rol.nombre} ({area.nombre})')
 
-        # 2) Coordinador: ve mufa/hilo y puede añadir/cambiar Conexión
-        coord = Group.objects.get_or_create(name='Coordinador')[0]
-        coord.permissions.set([
-            perms['view_mufa'], perms['view_hilo'],
-            perms['add_conexion'], perms['change_conexion'], perms['view_conexion'],
-        ])
+        # 3. Asignar rol de administrador al usuario admin si existe
+        try:
+            admin_user = User.objects.get(username='admin')
+            admin_rol = RolUsuario.objects.get(codigo='admin_sistema')
+            
+            perfil, created = PerfilUsuario.objects.get_or_create(
+                usuario=admin_user,
+                defaults={
+                    'rol': admin_rol,
+                    'activo': True,
+                    'puede_crear_proyectos': True,
+                    'puede_editar_proyectos': True,
+                    'puede_asignar_hilos': True,
+                    'puede_ver_dashboard': True,
+                    'puede_ver_mapa_mufas': True,
+                    'puede_ver_analytics': True,
+                }
+            )
+            
+            if created:
+                self.stdout.write(f'   ✅ Perfil admin creado: {perfil}')
+            else:
+                # Actualizar permisos si ya existe
+                perfil.rol = admin_rol
+                perfil.puede_crear_proyectos = True
+                perfil.puede_editar_proyectos = True
+                perfil.puede_asignar_hilos = True
+                perfil.puede_ver_dashboard = True
+                perfil.puede_ver_mapa_mufas = True
+                perfil.puede_ver_analytics = True
+                perfil.save()
+                self.stdout.write(f'   🔄 Perfil admin actualizado: {perfil}')
+                
+        except User.DoesNotExist:
+            self.stdout.write('   ⚠️  Usuario admin no encontrado')
 
-        # 3) Supervisor: solo ve mufa, hilo y conexión
-        sup = Group.objects.get_or_create(name='Supervisor')[0]
-        sup.permissions.set([
-            perms['view_mufa'], perms['view_hilo'], perms['view_conexion']
-        ])
+        # 4. Mostrar resumen
+        self.stdout.write('\n📊 RESUMEN:')
+        self.stdout.write(f'   📋 Áreas creadas: {AreaTrabajo.objects.count()}')
+        self.stdout.write(f'   👥 Roles creados: {RolUsuario.objects.count()}')
+        self.stdout.write(f'   👤 Perfiles de usuario: {PerfilUsuario.objects.count()}')
 
-        # 4) Jefe de Área: gestiona mufas además de ver todo
-        jefe = Group.objects.get_or_create(name='JefeÁrea')[0]
-        jefe.permissions.set([
-            perms['view_mufa'], perms['add_mufa'], perms['change_mufa'],
-            perms['view_hilo'], perms['view_conexion']
-        ])
+        # 5. Mostrar roles por área
+        self.stdout.write('\n🏢 ROLES POR ÁREA:')
+        for area in AreaTrabajo.objects.all():
+            self.stdout.write(f'   {area.nombre}:')
+            for rol in area.roles.all():
+                usuarios_count = rol.usuarios.count()
+                self.stdout.write(f'      • {rol.nombre} ({usuarios_count} usuarios)')
 
-        # 5) Gerente de Área: todos los permisos de la app mufas
-        gerente = Group.objects.get_or_create(name='GerenteÁrea')[0]
-        # Filtramos solo los permisos de la app 'mufas'
-        gerente.permissions.set(Permission.objects.filter(content_type__app_label='mufas'))
-
-        self.stdout.write(self.style.SUCCESS("✅ Roles y permisos inicializados exitosamente"))
+        self.stdout.write('\n🎉 ¡Sistema de roles inicializado correctamente!')
+        self.stdout.write('💡 Usa el admin de Django para gestionar usuarios y asignar roles.')
+        
+        # Instrucciones
+        self.stdout.write('\n📝 PRÓXIMOS PASOS:')
+        self.stdout.write('   1. Crear usuarios desde el admin: /admin/auth/user/')
+        self.stdout.write('   2. Asignar roles en la sección "Perfil del Usuario"')
+        self.stdout.write('   3. Las interfaces se adaptarán automáticamente según el rol')

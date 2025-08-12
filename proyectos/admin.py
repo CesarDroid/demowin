@@ -1,7 +1,16 @@
-# proyectos/admin.py
+# proyectos/admin.py - Panel de Administración Avanzado (Solo Superusuarios)
 from django.contrib import admin
 from django.utils.html import format_html
+from django.contrib.admin import AdminSite
 from .models import Proyecto, SeguimientoProyecto, TareaProyecto
+
+# Personalizar completamente el admin - Sin referencias a Django
+admin.site.site_header = 'WinFibra - Centro de Control Administrativo'
+admin.site.site_title = 'WinFibra Control Center'
+admin.site.index_title = 'Panel de Gestión Empresarial'
+
+# Personalizar texto de login
+admin.site.login_template = 'admin/login_custom.html'
 
 class SeguimientoInline(admin.TabularInline):
     model = SeguimientoProyecto

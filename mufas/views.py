@@ -21,14 +21,38 @@ def obtener_mufas(request):
     su estado (libres/ocupados) y la lista de hilos.
     Incluye información adicional para los filtros del panel de control.
     También incluye la lista de proyectos disponibles para asignación.
+    Soporta filtros por cable troncal.
     """
     # Obtener proyectos activos para el dropdown
     proyectos_activos = Proyecto.objects.filter(
         estado__in=['planificacion', 'aprobado', 'en_construccion']
     ).order_by('codigo').values('id', 'codigo', 'nombre_edificio', 'estado')
     
+    # Obtener cables troncales para el filtro
+    cables_troncales = CableTroncal.objects.all().order_by('codigo').values('id', 'codigo', 'capacidad')
+    
+    # Aplicar filtros si se especifican
+    qs = Mufa.objects.prefetch_related('hilos').select_related('cable_troncal')
+    
+    # Filtro por cable troncal
+    cable_troncal_id = request.GET.get('cable_troncal')
+    if cable_troncal_id and cable_troncal_id != 'todos':
+        try:
+            qs = qs.filter(cable_troncal_id=int(cable_troncal_id))
+        except (ValueError, TypeError):
+            pass
+    
+    # Filtro por distrito
+    distrito = request.GET.get('distrito')
+    if distrito and distrito != 'todos':
+        qs = qs.filter(distrito__icontains=distrito)
+    
+    # Filtro por tipo
+    tipo = request.GET.get('tipo')
+    if tipo and tipo != 'todos':
+        qs = qs.filter(tipo=tipo)
+    
     data = []
-    qs = Mufa.objects.prefetch_related('hilos').all()
     
     for m in qs:
         if m.latitud and m.longitud:
@@ -62,6 +86,11 @@ def obtener_mufas(request):
                 'ocupados'   : ocupados,
                 'reservados' : reservados,  # ← Agregado
                 'hilos'      : hilos_data,
+                'cable_troncal': {
+                    'id': m.cable_troncal.id if m.cable_troncal else None,
+                    'codigo': m.cable_troncal.codigo if m.cable_troncal else 'Sin asignar',
+                    'capacidad': m.cable_troncal.capacidad if m.cable_troncal else 0
+                },
                 
                 # Datos adicionales para análisis
                 'ocupacion_porcentaje': round((ocupados / m.capacidad_hilos * 100) if m.capacidad_hilos > 0 else 0, 1),
@@ -69,10 +98,16 @@ def obtener_mufas(request):
                                  'media' if libres > m.capacidad_hilos * 0.3 else 'baja'
             })
 
-    # Retornar datos con proyectos incluidos
+    # Retornar datos con proyectos incluidos y filtros disponibles
     return JsonResponse({
         'mufas': data,
-        'proyectos_disponibles': list(proyectos_activos)
+        'proyectos_disponibles': list(proyectos_activos),
+        'cables_troncales': list(cables_troncales),
+        'filtros_aplicados': {
+            'cable_troncal': cable_troncal_id,
+            'distrito': distrito,
+            'tipo': tipo
+        }
     }, safe=False)
 
 

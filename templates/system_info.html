@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Información del Sistema - WinFibra{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card-custom">
+                <h1 class="text-primary mb-4">
+                    <i class="fas fa-info-circle me-3"></i>
+                    WinFibra - Sistema de Gestión
+                </h1>
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <h4 class="text-light mb-3">Acerca del Sistema</h4>
+                        <p class="text-muted">
+                            WinFibra es una plataforma integral de gestión de infraestructura 
+                            de fibra óptica, desarrollada específicamente para optimizar 
+                            la administración de redes y proyectos de telecomunicaciones.
+                        </p>
+                        
+                        <h5 class="text-success mt-4 mb-3">Características Principales</h5>
+                        <ul class="text-muted">
+                            <li><strong>Gestión de Proyectos:</strong> Control completo del ciclo de vida de proyectos</li>
+                            <li><strong>Mapeo de Infraestructura:</strong> Visualización georreferenciada de mufas</li>
+                            <li><strong>Sistema de Roles:</strong> Control de acceso por áreas de trabajo</li>
+                            <li><strong>Analytics Avanzado:</strong> Reportes y métricas de rendimiento</li>
+                            <li><strong>Interfaz Responsive:</strong> Optimizada para dispositivos móviles</li>
+                        </ul>
+                        
+                        <h5 class="text-warning mt-4 mb-3">Arquitectura del Sistema</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="alert alert-info">
+                                    <h6><i class="fas fa-server me-2"></i>Backend</h6>
+                                    <p class="mb-0 small">
+                                        Arquitectura robusta basada en Python con 
+                                        base de datos optimizada y APIs REST.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="alert alert-success">
+                                    <h6><i class="fas fa-mobile-alt me-2"></i>Frontend</h6>
+                                    <p class="mb-0 small">
+                                        Interfaz moderna responsive con 
+                                        Bootstrap y tecnologías web estándar.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card-custom" style="background: rgba(26, 188, 156, 0.1);">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-cog me-2"></i>Versión del Sistema
+                            </h5>
+                            
+                            <table class="table table-sm text-muted">
+                                <tr>
+                                    <td><strong>Versión:</strong></td>
+                                    <td>WinFibra 1.0</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Build:</strong></td>
+                                    <td>2025.01.12</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Estado:</strong></td>
+                                    <td><span class="badge bg-success">Operativo</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Entorno:</strong></td>
+                                    <td>Producción</td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <div class="card-custom mt-3" style="background: rgba(52, 73, 94, 0.1);">
+                            <h6 class="text-light mb-3">
+                                <i class="fas fa-shield-alt me-2"></i>Seguridad
+                            </h6>
+                            <ul class="text-muted small mb-0">
+                                <li>Autenticación multifactor</li>
+                                <li>Control de acceso por roles</li>
+                                <li>Cifrado de datos</li>
+                                <li>Auditoría completa</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr class="my-4">
+                
+                <div class="text-center">
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-copyright me-1"></i>
+                        2025 WinFibra - Todos los derechos reservados
+                    </p>
+                    <p class="text-muted small">
+                        Sistema propietario de gestión de infraestructura de fibra óptica
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

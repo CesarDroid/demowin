@@ -1,0 +1,32 @@
+{% extends "admin/login.html" %}
+
+{% block title %}WinFibra - Acceso Administrativo{% endblock %}
+
+{% block branding %}
+<div class="text-center mb-4">
+    <h1 style="color: #1abc9c; font-weight: 600; margin: 0;">
+        <i class="fas fa-network-wired me-2"></i>
+        WinFibra
+    </h1>
+    <p style="color: #666; margin: 0; font-size: 14px;">
+        Centro de Control Administrativo
+    </p>
+</div>
+{% endblock %}
+
+{% block welcome-text %}
+<p style="color: #333; text-align: center; margin-bottom: 30px;">
+    Acceda al sistema de gestión empresarial con sus credenciales autorizadas
+</p>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+{% endblock %}
+
+{% block footer %}
+<div class="text-center mt-4" style="color: #999; font-size: 12px;">
+    <p>WinFibra © 2025 - Sistema de Gestión de Infraestructura de Fibra Óptica</p>
+    <p>Acceso restringido a personal autorizado</p>
+</div>
+{% endblock %}

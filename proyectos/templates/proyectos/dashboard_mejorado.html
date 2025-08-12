@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Proyectos - WinFibra{% endblock %}
+
+{% block extra_css %}
+<style>
+.area-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 0.8rem;
+}
+
+.permission-indicator {
+    border-left: 4px solid;
+    padding-left: 1rem;
+}
+
+.commercial-indicator { border-left-color: var(--primary-blue); }
+.planning-indicator { border-left-color: var(--success-green); }
+.construction-indicator { border-left-color: var(--warning-yellow); }
+.admin-indicator { border-left-color: var(--danger-red); }
+
+.access-denied {
+    background: rgba(231, 76, 60, 0.1);
+    border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+.access-granted {
+    background: rgba(46, 204, 113, 0.1);
+    border: 1px solid rgba(46, 204, 113, 0.3);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- HEADER CON INFORMACIÓN DEL ROL -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card-custom position-relative">
+                {% if user_area %}
+                    <div class="area-badge">
+                        <span class="badge bg-info">{{ user_area.nombre }}</span>
+                    </div>
+                {% endif %}
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="text-light mb-1">
+                            <i class="fas fa-project-diagram text-primary me-3"></i>
+                            Dashboard de Proyectos
+                        </h1>
+                        <p class="text-muted mb-0">
+                            {% if user_rol %}
+                                Gestión desde {{ user_area.nombre }} - {{ user_rol.nombre }}
+                            {% else %}
+                                Panel general de proyectos
+                            {% endif %}
+                        </p>
+                    </div>
+                    
+                    <!-- BOTONES SEGÚN PERMISOS -->
+                    <div class="d-flex gap-2">
+                        {% if user_permisos.puede_crear_proyectos %}
+                            <a href="{% url 'proyectos:create' %}" class="btn btn-success-custom">
+                                <i class="fas fa-plus me-1"></i>Crear Proyecto
+                            </a>
+                        {% endif %}
+                        
+                        <a href="{% url 'proyectos:list' %}" class="btn btn-primary-custom">
+                            <i class="fas fa-list me-1"></i>Ver Lista
+                        </a>
+                        
+                        {% if user_permisos.puede_ver_analytics %}
+                            <a href="{% url 'proyectos:analytics' %}" class="btn btn-info">
+                                <i class="fas fa-chart-bar me-1"></i>Analytics
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ESTADÍSTICAS -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card-custom">
+                <div class="stat-card">
+                    <div class="stat-number text-primary">{{ total_proyectos|default:"0" }}</div>
+                    <div class="stat-label">Total Proyectos</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card-custom">
+                <div class="stat-card">
+                    <div class="stat-number text-success">{{ proyectos_activos|default:"0" }}</div>
+                    <div class="stat-label">Proyectos Activos</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card-custom">
+                <div class="stat-card">
+                    <div class="stat-number text-warning">5</div>
+                    <div class="stat-label">En Construcción</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card-custom">
+                <div class="stat-card">
+                    <div class="stat-number text-info">12</div>
+                    <div class="stat-label">Completados</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PERMISOS Y FUNCIONES POR ÁREA -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card-custom">
+                <h4 class="text-light mb-3">
+                    <i class="fas fa-tasks me-2"></i>Funciones Disponibles
+                </h4>
+                
+                <div class="row">
+                    <!-- CREACIÓN DE PROYECTOS -->
+                    <div class="col-md-6 mb-3">
+                        <div class="permission-indicator commercial-indicator 
+                                    {% if user_permisos.puede_crear_proyectos %}access-granted{% else %}access-denied{% endif %}">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <h6 class="text-light mb-1">
+                                        <i class="fas fa-plus-circle me-2"></i>Crear Proyectos
+                                    </h6>
+                                    <small class="text-muted">Solo Área Comercial</small>
+                                </div>
+                                <div>
+                                    {% if user_permisos.puede_crear_proyectos %}
+                                        <i class="fas fa-check-circle text-success fa-2x"></i>
+                                    {% else %}
+                                        <i class="fas fa-times-circle text-danger fa-2x"></i>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if user_permisos.puede_crear_proyectos %}
+                                <a href="{% url 'proyectos:create' %}" class="btn btn-success btn-sm mt-2">
+                                    <i class="fas fa-plus me-1"></i>Crear Nuevo Proyecto
+                                </a>
+                            {% else %}
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Requiere rol de Comercial o Supervisor Comercial
+                                </small>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- EDICIÓN DE PROYECTOS -->
+                    <div class="col-md-6 mb-3">
+                        <div class="permission-indicator 
+                                    {% if is_comercial_user or is_planificacion_user %}commercial-indicator{% endif %}
+                                    {% if user_permisos.puede_editar_proyectos %}access-granted{% else %}access-denied{% endif %}">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <h6 class="text-light mb-1">
+                                        <i class="fas fa-edit me-2"></i>Editar Proyectos
+                                    </h6>
+                                    <small class="text-muted">Comercial y Supervisores</small>
+                                </div>
+                                <div>
+                                    {% if user_permisos.puede_editar_proyectos %}
+                                        <i class="fas fa-check-circle text-success fa-2x"></i>
+                                    {% else %}
+                                        <i class="fas fa-times-circle text-danger fa-2x"></i>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ASIGNACIÓN DE HILOS -->
+                    <div class="col-md-6 mb-3">
+                        <div class="permission-indicator planning-indicator 
+                                    {% if user_permisos.puede_asignar_hilos %}access-granted{% else %}access-denied{% endif %}">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <h6 class="text-light mb-1">
+                                        <i class="fas fa-network-wired me-2"></i>Asignar Hilos
+                                    </h6>
+                                    <small class="text-muted">Solo Área Planificación</small>
+                                </div>
+                                <div>
+                                    {% if user_permisos.puede_asignar_hilos %}
+                                        <i class="fas fa-check-circle text-success fa-2x"></i>
+                                    {% else %}
+                                        <i class="fas fa-times-circle text-danger fa-2x"></i>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if user_permisos.puede_asignar_hilos %}
+                                <a href="{% url 'mufas:mapa_mufas' %}" class="btn btn-success btn-sm mt-2">
+                                    <i class="fas fa-map-marked-alt me-1"></i>Ir al Mapa de Mufas
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- ANALYTICS -->
+                    <div class="col-md-6 mb-3">
+                        <div class="permission-indicator 
+                                    {% if user_permisos.puede_ver_analytics %}access-granted{% else %}access-denied{% endif %}">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <h6 class="text-light mb-1">
+                                        <i class="fas fa-chart-bar me-2"></i>Analytics Avanzado
+                                    </h6>
+                                    <small class="text-muted">Solo Supervisores</small>
+                                </div>
+                                <div>
+                                    {% if user_permisos.puede_ver_analytics %}
+                                        <i class="fas fa-check-circle text-success fa-2x"></i>
+                                    {% else %}
+                                        <i class="fas fa-times-circle text-danger fa-2x"></i>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if user_permisos.puede_ver_analytics %}
+                                <a href="{% url 'proyectos:analytics' %}" class="btn btn-info btn-sm mt-2">
+                                    <i class="fas fa-chart-line me-1"></i>Ver Analytics
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INFORMACIÓN DEL SISTEMA DE ROLES -->
+        <div class="col-lg-4">
+            <div class="card-custom">
+                <h4 class="text-light mb-3">
+                    <i class="fas fa-info-circle me-2"></i>Sistema de Roles
+                </h4>
+                
+                <div class="mb-3">
+                    <h6 class="text-primary">
+                        <i class="fas fa-building me-1"></i>Área Comercial
+                    </h6>
+                    <ul class="text-muted small mb-3">
+                        <li>✅ <strong>Crear</strong> proyectos nuevos</li>
+                        <li>✅ <strong>Editar</strong> proyectos existentes</li>
+                        <li>✅ Ver dashboard y analytics</li>
+                    </ul>
+                </div>
+
+                <div class="mb-3">
+                    <h6 class="text-success">
+                        <i class="fas fa-sitemap me-1"></i>Área Planificación
+                    </h6>
+                    <ul class="text-muted small mb-3">
+                        <li>✅ <strong>Asignar</strong> hilos a edificios</li>
+                        <li>✅ Ver mapa de mufas</li>
+                        <li>❌ <strong>No puede crear</strong> proyectos</li>
+                    </ul>
+                </div>
+
+                <div class="mb-3">
+                    <h6 class="text-warning">
+                        <i class="fas fa-hard-hat me-1"></i>Área Construcción
+                    </h6>
+                    <ul class="text-muted small mb-3">
+                        <li>✅ Ver proyectos asignados</li>
+                        <li>✅ Ver mapa de mufas</li>
+                        <li>❌ <strong>No puede crear</strong> proyectos</li>
+                    </ul>
+                </div>
+
+                {% if not user.is_authenticated %}
+                    <div class="alert alert-warning">
+                        <small>
+                            <i class="fas fa-sign-in-alt me-1"></i>
+                            <a href="/admin/login/" class="text-warning">Inicie sesión</a> 
+                            para acceder a las funciones según su rol.
+                        </small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

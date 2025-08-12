@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Debug CSRF - WinFibra{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2>Debug CSRF Token</h2>
+    
+    <div class="alert alert-info">
+        <h5>Información de Debug</h5>
+        <p><strong>CSRF Token:</strong> {% csrf_token %}</p>
+        <p><strong>Usuario:</strong> {{ user }}</p>
+        <p><strong>Autenticado:</strong> {{ user.is_authenticated }}</p>
+        <p><strong>Es Superusuario:</strong> {{ user.is_superuser }}</p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">Campo de Prueba</label>
+            <input type="text" name="test_field" class="form-control" value="test">
+        </div>
+        <button type="submit" class="btn btn-primary">Enviar Prueba</button>
+    </form>
+
+    {% if request.method == 'POST' %}
+        <div class="alert alert-success mt-3">
+            ✅ POST enviado correctamente sin error CSRF
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

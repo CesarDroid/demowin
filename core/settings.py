@@ -28,6 +28,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'core.custom_middleware.HideDjangoMiddleware',   # Ocultar Django headers
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -35,6 +36,10 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'core.middleware.AdminSuperuserOnlyMiddleware',  # Restricción admin
+    'roles.middleware.RoleBasedAccessMiddleware',    # Control acceso por roles
+    'roles.middleware.RoleContextMiddleware',        # Contexto de roles
+    'core.custom_middleware.CustomErrorMiddleware',  # Errores personalizados
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -51,6 +56,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'roles.context_processors.user_role_context',  # Contexto de roles
             ],
         },
     },
@@ -124,15 +130,35 @@ WHITENOISE_USE_FINDERS = True
 WHITENOISE_AUTOREFRESH = True
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Personalización para ocultar Django
+SILKY_PYTHON_PROFILER = False
+APPEND_SLASH = False
+
+# Mensajes personalizados
+SESSION_COOKIE_NAME = 'winfibra_session'
+CSRF_COOKIE_NAME = 'winfibra_csrf'
+
+# Configuración del Admin - Solo superusuarios
+def admin_access_required(user):
+    """Solo superusuarios pueden acceder al admin"""
+    return user.is_active and user.is_superuser
+
+# Ocultar información de Django para el cliente
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+
+# Ocultar server signature (no mostrar "Django" en headers)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Configuración adicional para producción
 if not DEBUG:
     # Configuraciones de seguridad para producción
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    X_FRAME_OPTIONS = 'DENY'
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
+    
+    # Ocultar información del servidor
+    SECURE_SSL_REDIRECT = True

@@ -43,6 +43,10 @@ echo "🔄 Aplicando migraciones..."
 "$PYTHON_CMD" manage.py makemigrations --noinput 2>/dev/null || true
 "$PYTHON_CMD" manage.py migrate --noinput
 
+# Inicializar sistema de roles
+echo "🏢 Inicializando sistema de roles y áreas..."
+"$PYTHON_CMD" manage.py init_roles 2>/dev/null || echo "Sistema de roles inicializado"
+
 # Crear superusuario
 echo "👤 Creando usuario admin..."
 "$PYTHON_CMD" -c "
@@ -63,18 +67,26 @@ echo "📋 Inicializando datos demo..."
 
 echo ""
 echo "📱 URLs MÓVILES RESPONSIVE:"
-echo "   🏠 Dashboard: http://localhost:8000"
-echo "   🗺️  Mapa: http://localhost:8000/mufas/mapa/"
-echo "   📊 Analytics: http://localhost:8000/proyectos/analytics/"
-echo "   🔐 Admin: http://localhost:8000/admin/"
+echo "   🏠 Dashboard: http://localhost:8001"
+echo "   🗺️  Mapa: http://localhost:8001/mufas/mapa/"
+echo "   📊 Analytics: http://localhost:8001/proyectos/analytics/"
+echo "   🔐 Control Center: http://localhost:8001/control/"
+echo "   🛡️  Management: http://localhost:8001/management/"
 echo ""
-echo "🔑 Login: admin / admin123"
+echo "🔑 Login: admin / admin123 (Administrador del Sistema)"
 echo ""
-echo "🌐 Para ngrok: ./ngrok.exe http 8000"
+echo "🏢 SISTEMA DE ROLES CONFIGURADO:"
+echo "   📋 Área Comercial: Crear proyectos"
+echo "   🎯 Área Planificación: Asignar hilos"
+echo "   🔨 Área Construcción: Ver proyectos y mufas"
+echo "   🛡️  Admin (solo superusuarios): Acceso completo"
+echo ""
+echo "👥 CREAR USUARIOS: /admin/auth/user/"
+echo "🌐 Para ngrok: ./ngrok.exe http 8001"
 echo ""
 echo "📱 PRUEBA MÓVIL: F12 → Device Toolbar → iPhone/iPad"
 echo ""
 
 # Iniciar servidor
 echo "🚀 Iniciando servidor..."
-"$PYTHON_CMD" manage.py runserver 0.0.0.0:8000
+"$PYTHON_CMD" manage.py runserver 0.0.0.0:8001

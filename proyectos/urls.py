@@ -16,4 +16,7 @@ urlpatterns = [
     
     # Analytics de proyectos
     path('analytics/', views.ProyectoAnalyticsView.as_view(), name='analytics'),
+    
+    # Debug CSRF (temporal)
+    path('debug-csrf/', views.debug_csrf_view, name='debug_csrf'),
 ]

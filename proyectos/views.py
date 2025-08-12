@@ -47,23 +47,34 @@ class ProyectoListView(ListView):
 
 
 class CrearProyectoView(CreateView):
-    """Vista para crear nuevos proyectos"""
+    """Vista para crear nuevos proyectos - Interfaz completa"""
     model = Proyecto
     form_class = ProyectoForm
-    template_name = 'proyectos/crear_proyecto.html'
+    template_name = 'proyectos/crear_proyecto_completo.html'
     success_url = reverse_lazy('proyectos:list')
     
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Agregar fecha actual para mostrar en el formulario
+        from django.utils import timezone
+        context['fecha_creacion_actual'] = timezone.now()
+        return context
+    
     def form_valid(self, form):
+        # Asegurar que la fecha de creación sea la actual
+        from django.utils import timezone
+        form.instance.fecha_creacion = timezone.now()
+        
         messages.success(
             self.request,
-            f'Proyecto {form.instance.codigo} creado exitosamente.'
+            f'✅ Proyecto {form.instance.codigo} creado exitosamente el {form.instance.fecha_creacion.strftime("%d/%m/%Y %H:%M")}'
         )
         return super().form_valid(form)
     
     def form_invalid(self, form):
         messages.error(
             self.request,
-            'Por favor corrige los errores en el formulario.'
+            '❌ Por favor corrige los errores en el formulario.'
         )
         return super().form_invalid(form)
 
@@ -124,7 +135,7 @@ class ProyectoAnalyticsView(TemplateView):
 
 # Vista simple para dashboard de proyectos
 def proyecto_dashboard_view(request):
-    """Dashboard básico de proyectos"""
+    """Dashboard mejorado con control de roles"""
     total_proyectos = Proyecto.objects.count()
     proyectos_activos = Proyecto.objects.filter(
         estado__in=['planificacion', 'aprobado', 'en_construccion']
@@ -135,4 +146,9 @@ def proyecto_dashboard_view(request):
         'proyectos_activos': proyectos_activos,
     }
     
-    return render(request, 'proyectos/dashboard.html', context)
+    return render(request, 'proyectos/dashboard_mejorado.html', context)
+
+
+def debug_csrf_view(request):
+    """Vista de debug para probar CSRF"""
+    return render(request, 'proyectos/debug_csrf.html')

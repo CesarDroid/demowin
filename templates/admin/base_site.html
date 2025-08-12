@@ -1,0 +1,46 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | WinFibra Control Center{% endblock %}
+
+{% block branding %}
+<div style="display: flex; align-items: center; padding: 10px 20px; background: linear-gradient(135deg, #1abc9c, #16a085); margin: -10px -20px 20px -20px;">
+    <i class="fas fa-network-wired" style="color: white; font-size: 24px; margin-right: 10px;"></i>
+    <h1 id="site-name" style="margin: 0; color: white; font-weight: 600; font-size: 20px;">
+        WinFibra Control Center
+    </h1>
+</div>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block usertools %}
+<div id="user-tools">
+    {% if has_permission %}
+        <strong>Centro de Gestión Empresarial</strong> |
+        {% if user.is_active and user.is_staff %}
+            {% url 'admin:index' as admin_url %}
+            {% if request.resolver_match.url_name != 'index' %}
+                <a href="{{ admin_url }}">Inicio</a> |
+            {% endif %}
+        {% endif %}
+        {% if user.has_usable_password %}
+            <a href="{% url 'admin:password_change' %}">Cambiar contraseña</a> |
+        {% endif %}
+        <form id="logout-form" method="post" action="{% url 'admin:logout' %}" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" style="background: none; border: none; color: #447e9b; text-decoration: underline; cursor: pointer;">
+                Cerrar sesión
+            </button>
+        </form>
+    {% else %}
+        <a href="{% url 'admin:login' %}">Iniciar sesión</a>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block footer %}
+<div id="footer" style="text-align: center; padding: 20px; border-top: 1px solid #eaeaea; margin-top: 40px; color: #666;">
+    <p>WinFibra © 2025 - Sistema de Gestión de Infraestructura de Fibra Óptica</p>
+    <p style="font-size: 12px;">Centro de Control Administrativo - Acceso Restringido</p>
+</div>
+{% endblock %}

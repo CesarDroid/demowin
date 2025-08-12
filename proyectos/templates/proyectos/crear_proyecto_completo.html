@@ -1,0 +1,517 @@
+{% extends "base.html" %}
+
+{% block title %}Crear Proyecto - WinFibra{% endblock %}
+
+{% block extra_css %}
+<style>
+.section-header {
+    background: linear-gradient(135deg, var(--primary-blue), var(--success-green));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid rgba(0, 168, 255, 0.2);
+}
+
+.form-section {
+    background: rgba(37, 42, 58, 0.5);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.form-control, .form-select {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    color: var(--text-light);
+}
+
+.form-control:focus, .form-select:focus {
+    background: rgba(0, 0, 0, 0.4);
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 0.2rem rgba(0, 168, 255, 0.25);
+    color: var(--text-light);
+}
+
+.form-label {
+    color: var(--text-light);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.required-field::after {
+    content: " *";
+    color: var(--danger-red);
+}
+
+.help-text {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+
+.btn-save {
+    background: linear-gradient(135deg, var(--success-green), #00b875);
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-save:hover {
+    background: linear-gradient(135deg, #00b875, var(--success-green));
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(0, 208, 132, 0.3);
+    color: white;
+}
+
+.progress-indicator {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+    .form-section {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .section-header {
+        font-size: 1.2rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- HEADER -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="text-light mb-1">
+                        <i class="fas fa-plus-circle text-success me-3"></i>
+                        Crear Nuevo Proyecto
+                    </h1>
+                    <p class="text-muted mb-0">Complete la información del proyecto de fibra óptica</p>
+                </div>
+                <div>
+                    <a href="{% url 'proyectos:list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Volver a Lista
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORMULARIO -->
+    <form method="post" novalidate>
+        {% csrf_token %}
+        
+        <!-- Mensajes de error globales -->
+        {% if form.non_field_errors %}
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        {{ form.non_field_errors }}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-lg-8">
+                
+                <!-- INFORMACIÓN BÁSICA -->
+                <div class="form-section">
+                    <h3 class="section-header">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Información Básica
+                    </h3>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.codigo.id_for_label }}" class="form-label required-field">
+                                    Código del Proyecto
+                                </label>
+                                {{ form.codigo }}
+                                <div class="help-text">Código único para identificar el proyecto (ej: PRY001)</div>
+                                {% if form.codigo.errors %}
+                                    <div class="text-danger mt-1">{{ form.codigo.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.nombre_edificio.id_for_label }}" class="form-label required-field">
+                                    Nombre del Edificio
+                                </label>
+                                {{ form.nombre_edificio }}
+                                {% if form.nombre_edificio.errors %}
+                                    <div class="text-danger mt-1">{{ form.nombre_edificio.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="{{ form.direccion.id_for_label }}" class="form-label required-field">
+                                    Dirección Completa
+                                </label>
+                                {{ form.direccion }}
+                                {% if form.direccion.errors %}
+                                    <div class="text-danger mt-1">{{ form.direccion.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.departamento.id_for_label }}" class="form-label">
+                                    Departamento
+                                </label>
+                                {{ form.departamento }}
+                                {% if form.departamento.errors %}
+                                    <div class="text-danger mt-1">{{ form.departamento.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.distrito.id_for_label }}" class="form-label required-field">
+                                    Distrito
+                                </label>
+                                {{ form.distrito }}
+                                {% if form.distrito.errors %}
+                                    <div class="text-danger mt-1">{{ form.distrito.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Estado</label>
+                                {{ form.estado }}
+                                {% if form.estado.errors %}
+                                    <div class="text-danger mt-1">{{ form.estado.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GEOLOCALIZACIÓN -->
+                <div class="form-section">
+                    <h3 class="section-header">
+                        <i class="fas fa-map-marker-alt me-2"></i>
+                        Geolocalización
+                    </h3>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.latitud.id_for_label }}" class="form-label">
+                                    Latitud
+                                </label>
+                                {{ form.latitud }}
+                                <div class="help-text">Coordenada de latitud (ej: -12.0464)</div>
+                                {% if form.latitud.errors %}
+                                    <div class="text-danger mt-1">{{ form.latitud.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.longitud.id_for_label }}" class="form-label">
+                                    Longitud
+                                </label>
+                                {{ form.longitud }}
+                                <div class="help-text">Coordenada de longitud (ej: -77.0428)</div>
+                                {% if form.longitud.errors %}
+                                    <div class="text-danger mt-1">{{ form.longitud.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARACTERÍSTICAS DEL EDIFICIO -->
+                <div class="form-section">
+                    <h3 class="section-header">
+                        <i class="fas fa-building me-2"></i>
+                        Características del Edificio
+                    </h3>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.cantidad_pisos.id_for_label }}" class="form-label required-field">
+                                    Cantidad de Pisos
+                                </label>
+                                {{ form.cantidad_pisos }}
+                                {% if form.cantidad_pisos.errors %}
+                                    <div class="text-danger mt-1">{{ form.cantidad_pisos.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.cantidad_departamentos.id_for_label }}" class="form-label required-field">
+                                    Cantidad de Departamentos
+                                </label>
+                                {{ form.cantidad_departamentos }}
+                                {% if form.cantidad_departamentos.errors %}
+                                    <div class="text-danger mt-1">{{ form.cantidad_departamentos.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GESTIÓN DEL PROYECTO -->
+                <div class="form-section">
+                    <h3 class="section-header">
+                        <i class="fas fa-tasks me-2"></i>
+                        Gestión del Proyecto
+                    </h3>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.prioridad.id_for_label }}" class="form-label">
+                                    Prioridad
+                                </label>
+                                {{ form.prioridad }}
+                                {% if form.prioridad.errors %}
+                                    <div class="text-danger mt-1">{{ form.prioridad.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.responsable.id_for_label }}" class="form-label">
+                                    Responsable del Proyecto
+                                </label>
+                                {{ form.responsable }}
+                                {% if form.responsable.errors %}
+                                    <div class="text-danger mt-1">{{ form.responsable.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.fecha_inicio.id_for_label }}" class="form-label">
+                                    Fecha de Inicio
+                                </label>
+                                {{ form.fecha_inicio }}
+                                {% if form.fecha_inicio.errors %}
+                                    <div class="text-danger mt-1">{{ form.fecha_inicio.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.fecha_fin_estimada.id_for_label }}" class="form-label">
+                                    Fecha Estimada de Finalización
+                                </label>
+                                {{ form.fecha_fin_estimada }}
+                                {% if form.fecha_fin_estimada.errors %}
+                                    <div class="text-danger mt-1">{{ form.fecha_fin_estimada.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.progreso_porcentaje.id_for_label }}" class="form-label">
+                                    Progreso Inicial (%)
+                                </label>
+                                {{ form.progreso_porcentaje }}
+                                <div class="help-text">Porcentaje de avance inicial (0-100)</div>
+                                {% if form.progreso_porcentaje.errors %}
+                                    <div class="text-danger mt-1">{{ form.progreso_porcentaje.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.presupuesto_estimado.id_for_label }}" class="form-label">
+                                    Presupuesto Estimado (S/)
+                                </label>
+                                {{ form.presupuesto_estimado }}
+                                <div class="help-text">Presupuesto total estimado en soles</div>
+                                {% if form.presupuesto_estimado.errors %}
+                                    <div class="text-danger mt-1">{{ form.presupuesto_estimado.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="{{ form.observaciones.id_for_label }}" class="form-label">
+                                    Observaciones Generales
+                                </label>
+                                {{ form.observaciones }}
+                                <div class="help-text">Notas adicionales sobre el proyecto</div>
+                                {% if form.observaciones.errors %}
+                                    <div class="text-danger mt-1">{{ form.observaciones.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- SIDEBAR INFORMATIVO -->
+            <div class="col-lg-4">
+                <div class="form-section">
+                    <h5 class="text-primary mb-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Información
+                    </h5>
+                    
+                    <div class="progress-indicator mb-3">
+                        <strong>Estado del Formulario</strong><br>
+                        <small>Complete los campos obligatorios (*) para continuar</small>
+                    </div>
+
+                    <div class="alert alert-success">
+                        <h6><i class="fas fa-calendar-alt me-2"></i>Fecha de Creación</h6>
+                        <p class="mb-0 small">
+                            <strong>{{ fecha_creacion_actual|date:"d/m/Y H:i" }}</strong><br>
+                            El proyecto se registrará con esta fecha y hora
+                        </p>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-lightbulb me-2"></i>Consejos</h6>
+                        <ul class="mb-0 small">
+                            <li>El código debe ser único y descriptivo</li>
+                            <li>La geolocalización ayuda en el mapeo</li>
+                            <li>Asigne un responsable para mejor seguimiento</li>
+                            <li>Establezca fechas realistas</li>
+                        </ul>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <h6><i class="fas fa-shield-alt me-2"></i>Administración</h6>
+                        <p class="mb-1 small">Para gestión avanzada, tareas y seguimiento detallado, utilice el 
+                        <strong>Panel de Administración</strong> (solo superusuarios).</p>
+                        <a href="/admin/proyectos/proyecto/" class="btn btn-sm btn-outline-warning" target="_blank">
+                            <i class="fas fa-external-link-alt me-1"></i>Ir al Admin
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTONES DE ACCIÓN -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="form-section">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <a href="{% url 'proyectos:list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i>Cancelar
+                            </a>
+                        </div>
+                        
+                        <div>
+                            <button type="submit" class="btn btn-save">
+                                <i class="fas fa-save me-2"></i>
+                                Crear Proyecto
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Validación en tiempo real
+document.addEventListener('DOMContentLoaded', function() {
+    // Código automático
+    const codigoField = document.getElementById('id_codigo');
+    if (codigoField && !codigoField.value) {
+        // Generar código automático si está vacío
+        const timestamp = new Date().getTime().toString().slice(-6);
+        codigoField.value = `PRY${timestamp}`;
+    }
+
+    // Validación de coordenadas
+    const latField = document.getElementById('id_latitud');
+    const lngField = document.getElementById('id_longitud');
+    
+    if (latField) {
+        latField.addEventListener('input', function() {
+            const val = parseFloat(this.value);
+            if (val && (val < -90 || val > 90)) {
+                this.setCustomValidity('La latitud debe estar entre -90 y 90');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
+    
+    if (lngField) {
+        lngField.addEventListener('input', function() {
+            const val = parseFloat(this.value);
+            if (val && (val < -180 || val > 180)) {
+                this.setCustomValidity('La longitud debe estar entre -180 y 180');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
+
+    // Validación de progreso
+    const progresoField = document.getElementById('id_progreso_porcentaje');
+    if (progresoField) {
+        progresoField.addEventListener('input', function() {
+            const val = parseInt(this.value);
+            if (val && (val < 0 || val > 100)) {
+                this.setCustomValidity('El progreso debe estar entre 0 y 100');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

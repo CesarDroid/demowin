@@ -739,6 +739,14 @@
         </div>
 
         <div class="filter-group">
+          <label class="filter-label">Cable Troncal</label>
+          <select class="search-input" id="cableTroncalFilter">
+            <option value="todos">Todos los cables</option>
+            <!-- Se llena dinámicamente -->
+          </select>
+        </div>
+        
+        <div class="filter-group">
           <label class="filter-label">Tipo de Mufa</label>
           <div class="filter-buttons" id="tipoFilters">
             <button class="filter-btn active" data-tipo="todos">
@@ -802,8 +810,10 @@
     let currentFilters = {
       estado: 'todos',
       tipo: 'todos',
+      cable_troncal: 'todos',
       search: ''
     };
+    let cablesDisponibles = [];
 
     // URLs dinámicas
     const URLS = {
@@ -837,6 +847,10 @@
         const data = await response.json();
         mufasData = data.mufas || data; // Compatibilidad con formato anterior
         proyectosDisponibles = data.proyectos_disponibles || [];
+        cablesDisponibles = data.cables_troncales || [];
+        
+        // Actualizar selector de cables troncales
+        updateCableTroncalFilter();
         
         updateStatistics();
         displayMufas();
@@ -913,6 +927,12 @@
         // Filtro de tipo de mufa
         if (currentFilters.tipo !== 'todos') {
           if (mufa.tipo !== currentFilters.tipo) return false;
+        }
+        
+        // Filtro de cable troncal
+        if (currentFilters.cable_troncal !== 'todos') {
+          const cableId = mufa.cable_troncal?.id;
+          if (cableId != currentFilters.cable_troncal) return false;
         }
 
         return true;
@@ -1007,6 +1027,11 @@
           <span class="status-badge">${mufa.capacidad || 0} Total</span>
         </div>
         
+        <div style="font-size: 11px; color: #888; margin-bottom: 8px;">
+          <strong>Cable Troncal:</strong> ${mufa.cable_troncal?.codigo || 'Sin asignar'}
+          ${mufa.cable_troncal?.capacidad ? `(${mufa.cable_troncal.capacidad} hilos)` : ''}
+        </div>
+        
         <div style="font-size: 12px; color: #ccc; margin-bottom: 12px;">
           ${mufa.descripcion || 'Sin descripción'}
         </div>
@@ -1059,6 +1084,12 @@
           displayMufas();
         }
       });
+      
+      // Cable troncal
+      document.getElementById('cableTroncalFilter').addEventListener('change', (e) => {
+        currentFilters.cable_troncal = e.target.value;
+        displayMufas();
+      });
 
       // Asignación de hilos en popups
       map.on('popupopen', (e) => {
@@ -1098,6 +1129,19 @@
             }
           };
         });
+      });
+    }
+
+    // Actualizar filtro de cables troncales
+    function updateCableTroncalFilter() {
+      const select = document.getElementById('cableTroncalFilter');
+      select.innerHTML = '<option value="todos">Todos los cables</option>';
+      
+      cablesDisponibles.forEach(cable => {
+        const option = document.createElement('option');
+        option.value = cable.id;
+        option.textContent = `${cable.codigo} (${cable.capacidad} hilos)`;
+        select.appendChild(option);
       });
     }
 

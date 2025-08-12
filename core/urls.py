@@ -1,10 +1,14 @@
 # core/urls.py - VERSIÓN CORREGIDA Y FUNCIONAL
 from django.contrib import admin
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import user_passes_test
 from django.urls import path, include
+from django.utils.decorators import method_decorator
 from django.shortcuts import redirect, render
 from django.conf import settings
 from django.conf.urls.static import static
 from django.http import JsonResponse
+from django.contrib.auth import views as auth_views
 
 def redirect_to_dashboard(request):
     """Redireccionar página principal al dashboard"""
@@ -41,9 +45,18 @@ def api_overview(request):
     }
     return JsonResponse(data)
 
+# 🌐 Personalización del Admin de WinFibra
+admin.site.site_header = "🌐 WinFibra - Gestión de Fibra Óptica"
+admin.site.site_title = "WinFibra Admin"
+admin.site.index_title = "Panel de Control de Red"
+
 urlpatterns = [
     # Página principal
     path('', redirect_to_dashboard, name='home'),
+    
+    # Sistema de autenticación
+    path('accounts/login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
+    path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
     
     # Dashboard principal
     path('dashboard/', dashboard_view, name='dashboard_home'),
@@ -56,8 +69,10 @@ urlpatterns = [
     path('demo/dashboard/', lambda request: render(request, 'demos/dashboard_estatico.html'), name='demo_dashboard'),
     path('demo/analytics/', lambda request: render(request, 'demos/analytics_estatico.html'), name='demo_analytics'),
     
-    # Panel de administración
+    # Centro de Control Administrativo (solo superusuarios)
     path('admin/', admin.site.urls),
+    path('control/', admin.site.urls),  # URL alternativa más profesional
+    path('management/', admin.site.urls),  # URL alternativa para gestión
     
     # Módulos principales
     path('proyectos/', include('proyectos.urls')),
