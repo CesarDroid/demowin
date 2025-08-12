@@ -1,0 +1,96 @@
+#!/bin/bash
+
+echo "🔧 Solucionando problemas de base de datos..."
+echo "=============================================="
+
+# Usar Python 3.12 específicamente
+PYTHON_CMD="C:/Users/elray/AppData/Local/Programs/Python/Python312/python.exe"
+
+# Terminar cualquier proceso Django que esté corriendo
+echo "🛑 Terminando procesos Django..."
+taskkill //F //IM python.exe 2>/dev/null || true
+taskkill //F //IM python3.exe 2>/dev/null || true
+
+# Esperar un momento
+sleep 3
+
+# Crear nueva base de datos con nombre diferente
+echo "📊 Creando nueva base de datos..."
+DB_NAME="db_fresh_$(date +%s).sqlite3"
+
+# Configurar variable temporal para la nueva base
+export DATABASE_NAME="$DB_NAME"
+
+echo "🔄 Aplicando migraciones a la nueva base: $DB_NAME"
+"$PYTHON_CMD" -c "
+import os, django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
+
+# Configurar base de datos temporal
+from django.conf import settings
+settings.DATABASES['default']['NAME'] = '$DB_NAME'
+
+django.setup()
+
+# Ejecutar migraciones
+from django.core.management import execute_from_command_line
+execute_from_command_line(['manage.py', 'migrate'])
+print('✅ Migraciones aplicadas exitosamente')
+"
+
+# Crear superusuario
+echo "👤 Creando usuario administrador..."
+"$PYTHON_CMD" -c "
+import os, django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
+
+# Configurar base de datos temporal  
+from django.conf import settings
+settings.DATABASES['default']['NAME'] = '$DB_NAME'
+
+django.setup()
+
+from django.contrib.auth.models import User
+if not User.objects.filter(username='admin').exists():
+    User.objects.create_superuser('admin', 'admin@winfibra.com', 'admin123')
+    print('✅ Superusuario admin creado')
+else:
+    print('✅ Superusuario admin ya existe')
+"
+
+# Renombrar base nueva como principal
+echo "🔄 Activando nueva base de datos..."
+if [ -f "$DB_NAME" ]; then
+    mv "db.sqlite3" "db_old_backup.sqlite3" 2>/dev/null || true
+    mv "$DB_NAME" "db.sqlite3"
+    echo "✅ Base de datos actualizada exitosamente"
+else
+    echo "❌ Error: No se pudo crear la nueva base de datos"
+    exit 1
+fi
+
+# Inicializar datos demo
+echo "📋 Inicializando datos demo..."
+"$PYTHON_CMD" init_demo_data.py || {
+    echo "⚠️  Datos demo no inicializados, continuando..."
+}
+
+echo ""
+echo "🎉 ¡Base de datos solucionada!"
+echo "=============================="
+echo ""
+echo "🚀 Iniciando servidor limpio..."
+echo ""
+echo "📱 URLs para probar RESPONSIVIDAD:"
+echo "   🏠 Principal: http://localhost:8000"
+echo "   🗺️  Mapa: http://localhost:8000/mufas/mapa/"
+echo "   📊 Analytics: http://localhost:8000/proyectos/analytics/"
+echo "   🔐 Admin: http://localhost:8000/admin/"
+echo ""
+echo "🔑 Login: admin / admin123"
+echo ""
+echo "🌐 Para ngrok: ./ngrok.exe http 8000"
+echo ""
+
+# Iniciar servidor
+"$PYTHON_CMD" manage.py runserver 0.0.0.0:8000

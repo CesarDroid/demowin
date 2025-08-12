@@ -53,6 +53,20 @@
       height: 60px;
       overflow: hidden;
     }
+    
+    .control-panel.minimized .panel-header {
+      padding: 15px;
+      border-bottom: none;
+      justify-content: center;
+    }
+    
+    .control-panel.minimized .panel-title {
+      display: none;
+    }
+    
+    .control-panel.minimized .panel-content {
+      display: none;
+    }
 
     .panel-header {
       display: flex;
@@ -401,21 +415,83 @@
       transform: translateY(-1px);
     }
 
-    .assign-input {
+    .assign-input, .assign-select {
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 4px;
       padding: 2px 4px;
       color: #fff;
       font-size: 9px;
-      width: 60px;
+      width: 120px;
+    }
+    
+    .assign-select {
+      width: 140px;
+      font-size: 8px;
+    }
+    
+    .assign-select option {
+      background: #1a1f2e;
+      color: #fff;
     }
 
-    /* Responsive */
+    /* Responsive Optimizations */
     @media (max-width: 768px) {
       .control-panel {
-        width: calc(100vw - 40px);
-        max-width: 360px;
+        width: calc(100vw - 20px);
+        max-width: 340px;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+      }
+      
+      .control-panel.minimized {
+        width: 50px;
+        height: 50px;
+        top: 10px;
+        left: 10px;
+        right: auto;
+      }
+      
+      .panel-content {
+        padding: 15px;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      
+      .stat-card {
+        padding: 12px;
+      }
+      
+      .stat-number {
+        font-size: 18px;
+      }
+      
+      .stat-label {
+        font-size: 10px;
+      }
+      
+      .filter-buttons {
+        gap: 4px;
+      }
+      
+      .filter-btn {
+        padding: 6px 12px;
+        font-size: 11px;
+      }
+      
+      .search-input {
+        padding: 10px 12px;
+        font-size: 13px;
+      }
+      
+      .action-btn {
+        padding: 10px;
+        font-size: 11px;
       }
       
       .status-panel {
@@ -423,6 +499,149 @@
         right: 10px;
         left: 10px;
         min-width: auto;
+        padding: 12px;
+      }
+      
+      .status-text, .last-update {
+        font-size: 11px;
+      }
+      
+      /* Popup optimizations for mobile */
+      .leaflet-popup-content-wrapper {
+        max-width: calc(100vw - 40px) !important;
+      }
+      
+      .hilos-table {
+        font-size: 10px;
+      }
+      
+      .hilos-table th,
+      .hilos-table td {
+        padding: 4px 6px;
+      }
+      
+      .assign-select {
+        width: 100px;
+        font-size: 9px;
+      }
+      
+      .assign-btn {
+        padding: 3px 6px;
+        font-size: 8px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .control-panel {
+        width: calc(100vw - 10px);
+        max-width: none;
+        top: 5px;
+        left: 5px;
+        right: 5px;
+      }
+      
+      .control-panel.minimized {
+        width: 45px;
+        height: 45px;
+        top: 5px;
+        left: 5px;
+      }
+      
+      .panel-content {
+        padding: 10px;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+      
+      .stat-card {
+        padding: 8px;
+      }
+      
+      .stat-number {
+        font-size: 16px;
+      }
+      
+      .stat-label {
+        font-size: 9px;
+      }
+      
+      .filter-btn {
+        padding: 4px 8px;
+        font-size: 10px;
+      }
+      
+      .search-input {
+        padding: 8px 10px;
+        font-size: 12px;
+      }
+      
+      .action-btn {
+        padding: 8px;
+        font-size: 10px;
+      }
+      
+      .status-panel {
+        bottom: 5px;
+        right: 5px;
+        left: 5px;
+        padding: 10px;
+      }
+      
+      /* Extra small popup adjustments */
+      .popup-title {
+        font-size: 14px;
+      }
+      
+      .hilos-table {
+        font-size: 9px;
+      }
+      
+      .hilos-table th,
+      .hilos-table td {
+        padding: 2px 4px;
+      }
+      
+      .assign-select {
+        width: 80px;
+        font-size: 8px;
+      }
+      
+      .assign-btn {
+        padding: 2px 4px;
+        font-size: 7px;
+      }
+    }
+    
+    /* Touch-friendly improvements */
+    @media (hover: none) and (pointer: coarse) {
+      .filter-btn,
+      .action-btn,
+      .assign-btn,
+      .minimize-btn {
+        min-height: 44px;
+        min-width: 44px;
+      }
+      
+      .search-input,
+      .assign-select {
+        min-height: 44px;
+      }
+      
+      .filter-btn:hover,
+      .action-btn:hover,
+      .assign-btn:hover {
+        transform: none;
+      }
+      
+      .leaflet-control-zoom-in,
+      .leaflet-control-zoom-out {
+        width: 44px;
+        height: 44px;
+        line-height: 44px;
+        font-size: 18px;
       }
     }
 
@@ -578,6 +797,7 @@
     // Variables globales
     let map;
     let mufasData = [];
+    let proyectosDisponibles = [];
     let markersLayer;
     let currentFilters = {
       estado: 'todos',
@@ -614,7 +834,10 @@
           throw new Error(`HTTP ${response.status}`);
         }
         
-        mufasData = await response.json();
+        const data = await response.json();
+        mufasData = data.mufas || data; // Compatibilidad con formato anterior
+        proyectosDisponibles = data.proyectos_disponibles || [];
+        
         updateStatistics();
         displayMufas();
         updateStatus('Sistema conectado', true);
@@ -727,29 +950,48 @@
 
     // Crear contenido del popup
     function createPopupContent(mufa) {
-      const hilosTable = mufa.hilos.map(hilo => `
-        <tr>
-          <td>${hilo.numero}</td>
-          <td>
-            <span class="hilo-estado estado-${hilo.estado}"></span>
-            ${hilo.estado}
-          </td>
-          <td>
-            <input class="assign-input" id="uso-${hilo.id}" 
-                   value="${hilo.uso || ''}" 
-                   placeholder="Proyecto"
-                   ${hilo.estado === 'ocupado' ? 'disabled' : ''}>
-          </td>
-          <td>${hilo.splitter}</td>
-          <td>
-            <button class="assign-btn" 
-                    data-hilo-id="${hilo.id}"
+      const hilosTable = mufa.hilos.map(hilo => {
+        let asignacionField;
+        
+        if (hilo.estado === 'ocupado') {
+          // Mostrar proyecto asignado (solo lectura)
+          asignacionField = `<span class="text-muted">${hilo.uso || 'Sin asignar'}</span>`;
+        } else {
+          // Crear dropdown de proyectos para hilos libres
+          const proyectosOptions = proyectosDisponibles.map(proyecto => 
+            `<option value="${proyecto.id}">${proyecto.codigo} - ${proyecto.nombre_edificio}</option>`
+          ).join('');
+          
+          asignacionField = `
+            <select class="assign-select" id="proyecto-${hilo.id}" 
                     ${hilo.estado === 'ocupado' ? 'disabled' : ''}>
-              ${hilo.estado === 'ocupado' ? '✓' : 'Asignar'}
-            </button>
-          </td>
-        </tr>
-      `).join('');
+              <option value="">Seleccionar proyecto...</option>
+              ${proyectosOptions}
+            </select>
+          `;
+        }
+        
+        return `
+          <tr>
+            <td>${hilo.numero}</td>
+            <td>
+              <span class="hilo-estado estado-${hilo.estado}"></span>
+              ${hilo.estado}
+            </td>
+            <td>
+              ${asignacionField}
+            </td>
+            <td>${hilo.splitter}</td>
+            <td>
+              <button class="assign-btn" 
+                      data-hilo-id="${hilo.id}"
+                      ${hilo.estado === 'ocupado' ? 'disabled' : ''}>
+                ${hilo.estado === 'ocupado' ? '✓' : 'Asignar'}
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
 
       return `
         <div class="popup-header">
@@ -824,11 +1066,11 @@
         popup.querySelectorAll('.assign-btn').forEach(btn => {
           btn.onclick = async () => {
             const hiloId = btn.dataset.hiloId;
-            const usoInput = popup.querySelector(`#uso-${hiloId}`);
-            const uso = usoInput.value.trim();
+            const proyectoSelect = popup.querySelector(`#proyecto-${hiloId}`);
+            const proyectoId = proyectoSelect ? proyectoSelect.value : null;
             
-            if (!uso) {
-              alert('Debe indicar proyecto/uso');
+            if (!proyectoId) {
+              alert('Debe seleccionar un proyecto');
               return;
             }
 
@@ -839,13 +1081,13 @@
                   'Content-Type': 'application/json',
                   'X-CSRFToken': getCookie('csrftoken')
                 },
-                body: JSON.stringify({ hilo_id: +hiloId, uso })
+                body: JSON.stringify({ hilo_id: +hiloId, proyecto_id: +proyectoId })
               });
 
               if (response.ok) {
                 btn.textContent = '✓';
                 btn.disabled = true;
-                usoInput.disabled = true;
+                if (proyectoSelect) proyectoSelect.disabled = true;
                 refreshData();
               } else {
                 alert('Error al asignar hilo');

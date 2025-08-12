@@ -6,6 +6,7 @@ from django.http                   import JsonResponse, HttpResponseBadRequest
 from django.views.decorators.http  import require_POST
 from django.contrib.auth.decorators import login_required, permission_required
 from .models                       import Mufa, CableTroncal, Conexion, Hilo
+from proyectos.models              import Proyecto
 
 def mapa_mufas(request):
     """
@@ -19,7 +20,13 @@ def obtener_mufas(request):
     Devuelve un array JSON con todas las mufas que tengan coordenadas,
     su estado (libres/ocupados) y la lista de hilos.
     Incluye información adicional para los filtros del panel de control.
+    También incluye la lista de proyectos disponibles para asignación.
     """
+    # Obtener proyectos activos para el dropdown
+    proyectos_activos = Proyecto.objects.filter(
+        estado__in=['planificacion', 'aprobado', 'en_construccion']
+    ).order_by('codigo').values('id', 'codigo', 'nombre_edificio', 'estado')
+    
     data = []
     qs = Mufa.objects.prefetch_related('hilos').all()
     
@@ -62,7 +69,11 @@ def obtener_mufas(request):
                                  'media' if libres > m.capacidad_hilos * 0.3 else 'baja'
             })
 
-    return JsonResponse(data, safe=False)
+    # Retornar datos con proyectos incluidos
+    return JsonResponse({
+        'mufas': data,
+        'proyectos_disponibles': list(proyectos_activos)
+    }, safe=False)
 
 
 def obtener_cables(request):
@@ -137,8 +148,8 @@ def obtener_conexiones(request):
 @permission_required('mufas.change_hilo', raise_exception=True)
 def asignar_hilo(request):
     """
-    Recibe JSON { hilo_id: int, uso: str }
-    Marca el hilo como 'ocupado' y actualiza su campo 'uso'.
+    Recibe JSON { hilo_id: int, proyecto_id: int }
+    Marca el hilo como 'ocupado' y actualiza su campo 'uso' con el código del proyecto.
     """
     try:
         payload = json.loads(request.body)
@@ -148,8 +159,16 @@ def asignar_hilo(request):
         if hilo.estado != 'libre':
             return HttpResponseBadRequest('El hilo no está libre')
         
+        # Obtener el proyecto seleccionado
+        proyecto_id = payload.get('proyecto_id')
+        if proyecto_id:
+            proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+            hilo.uso = f"{proyecto.codigo} - {proyecto.nombre_edificio}"
+        else:
+            # Fallback para uso libre (texto)
+            hilo.uso = payload.get('uso', '').strip()
+        
         hilo.estado = 'ocupado'
-        hilo.uso = payload.get('uso', '').strip()
         hilo.save()
         
         return JsonResponse({

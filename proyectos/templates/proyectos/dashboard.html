@@ -1,3 +1,5 @@
+mkdir -p proyectos/templates/proyectos
+cat > proyectos/templates/proyectos/dashboard.html << 'EOF'
 {% extends "base.html" %}
 {% block title %}Dashboard Proyectos{% endblock %}
 {% block content %}
@@ -28,3 +30,4 @@
     </div>
 </div>
 {% endblock %}
+EOF

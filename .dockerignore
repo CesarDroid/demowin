@@ -1,8 +1,47 @@
-.git
-env
-venv
-__pycache__
-*.log
+# Entornos virtuales - CRÍTICO para evitar errores
+venv/
+.venv/
+env/
+.env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Django
 *.sqlite3
-staticfiles
-media
+*.sqlite3-journal
+.migrations/
+staticfiles/
+media/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.log
+
+# Git
+.git/
+.gitignore
+
+# Docker
+docker-compose*.yml
+*.dockerignore
+
+# Scripts (excluir todos excepto entrypoint.sh)
+*.sh
+!entrypoint.sh
+
+# Temporales
+*.tmp
+*.temp
+node_modules/

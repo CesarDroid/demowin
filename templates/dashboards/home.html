@@ -1,743 +1,411 @@
-{% extends "base_professional.html" %}
+{% extends "base.html" %}
 {% load static %}
 
-{% block title %}WinFibra - Dashboard Ejecutivo{% endblock %}
-
-{% block extra_css %}
-<style>
-    .executive-hero {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-        border-radius: 24px;
-        padding: 3rem;
-        margin-bottom: 3rem;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .executive-hero::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-        opacity: 0.3;
-    }
-
-    .kpi-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 24px;
-        margin-bottom: 3rem;
-    }
-
-    .kpi-card {
-        background: var(--glass);
-        backdrop-filter: blur(20px);
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        padding: 2rem;
-        position: relative;
-        overflow: hidden;
-        transition: all 0.3s ease;
-    }
-
-    .kpi-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 20px 40px rgba(0, 212, 170, 0.15);
-    }
-
-    .kpi-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        margin-bottom: 1rem;
-    }
-
-    .kpi-value {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-    }
-
-    .kpi-label {
-        color: var(--text-secondary);
-        font-size: 14px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 1rem;
-    }
-
-    .kpi-trend {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 14px;
-        font-weight: 500;
-    }
-
-    .trend-up { color: var(--success); }
-    .trend-down { color: var(--danger); }
-
-    .chart-grid {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 24px;
-        margin-bottom: 3rem;
-    }
-
-    .chart-card {
-        background: var(--glass);
-        backdrop-filter: blur(20px);
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        padding: 2rem;
-    }
-
-    .chart-container {
-        position: relative;
-        height: 300px;
-        margin-top: 1rem;
-    }
-
-    .activity-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 24px;
-        margin-bottom: 3rem;
-    }
-
-    .activity-item {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        padding: 16px 0;
-        border-bottom: 1px solid var(--border);
-    }
-
-    .activity-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 16px;
-    }
-
-    .quick-actions {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 16px;
-        margin-top: 2rem;
-    }
-
-    .action-btn {
-        background: var(--glass);
-        backdrop-filter: blur(20px);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 1.5rem;
-        text-decoration: none;
-        color: var(--text-primary);
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-
-    .action-btn:hover {
-        background: var(--primary);
-        color: var(--dark);
-        transform: translateY(-2px);
-        text-decoration: none;
-    }
-
-    @media (max-width: 768px) {
-        .chart-grid {
-            grid-template-columns: 1fr;
-        }
-        .activity-grid {
-            grid-template-columns: 1fr;
-        }
-        .executive-hero {
-            padding: 2rem;
-        }
-    }
-</style>
-{% endblock %}
-
-{% block breadcrumb_title %}Dashboard Ejecutivo{% endblock %}
+{% block title %}Dashboard Principal - WinFibra{% endblock %}
 
 {% block content %}
-<!-- Executive Hero Section -->
-<section class="executive-hero fade-in">
-    <div style="position: relative; z-index: 1;">
-        <h1 style="font-size: 3rem; font-weight: 800; margin-bottom: 1rem; background: linear-gradient(45deg, #fff, rgba(255,255,255,0.8)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-            Centro de Control WinFibra
-        </h1>
-        <p style="font-size: 1.2rem; opacity: 0.9; margin-bottom: 2rem; max-width: 600px;">
-            Monitoreo en tiempo real de la infraestructura de telecomunicaciones más avanzada del Perú
-        </p>
-        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
-            <a href="{% url 'mufas:mapa_mufas' %}" class="btn btn-secondary">
-                <i class="fas fa-map"></i>
-                Mapa Interactivo
-            </a>
-            <a href="{% url 'analytics_dashboard' %}" class="btn btn-secondary">
-                <i class="fas fa-chart-line"></i>
-                Analytics Avanzado
-            </a>
-            <a href="{% url 'proyectos:dashboard' %}" class="btn btn-secondary">
-                <i class="fas fa-project-diagram"></i>
-                Gestión de Proyectos
-            </a>
-        </div>
-    </div>
-</section>
-
-<!-- KPI Cards -->
-<section class="kpi-grid fade-in">
-    <div class="kpi-card" data-kpi="mufas">
-        <div class="kpi-icon" style="background: linear-gradient(135deg, var(--primary), var(--success));">
-            <i class="fas fa-network-wired"></i>
-        </div>
-        <div class="kpi-value" id="totalMufas">{{ total_mufas|default:"2,847" }}</div>
-        <div class="kpi-label">Mufas Operativas</div>
-        <div class="kpi-trend trend-up">
-            <i class="fas fa-arrow-up"></i>
-            <span>+{{ tendencia_crecimiento|default:"12" }}% vs mes anterior</span>
-        </div>
-    </div>
-
-    <div class="kpi-card" data-kpi="hilos">
-        <div class="kpi-icon" style="background: linear-gradient(135deg, var(--secondary), var(--accent));">
-            <i class="fas fa-fiber-optic"></i>
-        </div>
-        <div class="kpi-value" id="hilosDisponibles">{{ hilos_disponibles|default:"18,432" }}</div>
-        <div class="kpi-label">Hilos Disponibles</div>
-        <div class="kpi-trend {% if hilos_disponibles > 15000 %}trend-up{% else %}trend-down{% endif %}">
-            <i class="fas fa-arrow-{% if hilos_disponibles > 15000 %}up{% else %}down{% endif %}"></i>
-            <span>{% if hilos_disponibles > 15000 %}+5{% else %}-3{% endif %}% vs semana anterior</span>
-        </div>
-    </div>
-
-    <div class="kpi-card" data-kpi="proyectos">
-        <div class="kpi-icon" style="background: linear-gradient(135deg, var(--warning), var(--danger));">
-            <i class="fas fa-building"></i>
-        </div>
-        <div class="kpi-value" id="proyectosActivos">{{ proyectos_activos|default:"167" }}</div>
-        <div class="kpi-label">Proyectos Activos</div>
-        <div class="kpi-trend trend-up">
-            <i class="fas fa-arrow-up"></i>
-            <span>+8% vs mes anterior</span>
-        </div>
-    </div>
-
-    <div class="kpi-card" data-kpi="ocupacion">
-        <div class="kpi-icon" style="background: linear-gradient(135deg, var(--success), var(--primary));">
-            <i class="fas fa-chart-line"></i>
-        </div>
-        <div class="kpi-value" id="ocupacionPromedio">{{ ocupacion_promedio|default:"78.5" }}%</div>
-        <div class="kpi-label">Ocupación Promedio</div>
-        <div class="kpi-trend {% if ocupacion_promedio > 75 %}trend-up{% else %}trend-down{% endif %}">
-            <i class="fas fa-arrow-{% if ocupacion_promedio > 75 %}up{% else %}down{% endif %}"></i>
-            <span>{% if ocupacion_promedio > 75 %}+5.2{% else %}-2.1{% endif %}% vs mes anterior</span>
-        </div>
-    </div>
-</section>
-
-<!-- Charts Section -->
-<section class="chart-grid fade-in">
-    <div class="chart-card">
-        <div class="d-flex justify-content-between align-items-center">
-            <h3>Evolución de Capacidad de Red</h3>
-            <div style="display: flex; gap: 8px;">
-                <button class="btn btn-outline btn-sm" onclick="updateChart('7d')">7D</button>
-                <button class="btn btn-primary btn-sm" onclick="updateChart('30d')">30D</button>
-                <button class="btn btn-outline btn-sm" onclick="updateChart('90d')">90D</button>
-            </div>
-        </div>
-        <div class="chart-container">
-            <canvas id="capacityChart"></canvas>
-        </div>
-    </div>
-
-    <div class="chart-card">
-        <div class="d-flex justify-content-between align-items-center">
-            <h3>Distribución por Distrito</h3>
-        </div>
-        <div class="chart-container">
-            <canvas id="distributionChart"></canvas>
-        </div>
-    </div>
-</section>
-
-<!-- Activity Panel -->
-<section class="activity-grid fade-in">
-    <div class="chart-card">
-        <h3 class="mb-3">Actividad Reciente</h3>
-        {% if actividad_reciente %}
-            {% for actividad in actividad_reciente %}
-            <div class="activity-item">
-                <div class="activity-icon" style="background: {% if actividad.tipo == 'success' %}var(--success){% elif actividad.tipo == 'warning' %}var(--warning){% else %}var(--primary){% endif %};">
-                    <i class="fas fa-{{ actividad.icono|default:'info-circle' }}"></i>
+<div class="container-fluid py-4">
+    <!-- HEADER SECTION -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="text-light mb-1">
+                        <i class="fas fa-tachometer-alt text-primary me-3"></i>
+                        Dashboard de Control
+                    </h1>
+                    <p class="text-muted mb-0">Panel de gestión y monitoreo en tiempo real</p>
                 </div>
-                <div style="flex: 1;">
-                    <div style="font-weight: 500; margin-bottom: 4px;">Proyecto retrasado - PRY-145</div>
-                    <div style="color: var(--text-secondary); font-size: 12px;">Villa El Salvador • 5 días</div>
+                <div>
+                    <span class="badge status-active px-3 py-2 me-2">
+                        <i class="fas fa-circle me-1"></i>Sistema Operativo
+                    </span>
+                    <span class="text-muted">
+                        <i class="fas fa-clock me-1"></i>
+                        <span id="current-time"></span>
+                    </span>
                 </div>
             </div>
-            <div class="activity-item">
-                <div class="activity-icon" style="background: var(--secondary);">
-                    <i class="fas fa-info-circle"></i>
-                </div>
-                <div style="flex: 1;">
-                    <div style="font-weight: 500; margin-bottom: 4px;">Actualización de firmware</div>
-                    <div style="color: var(--text-secondary); font-size: 12px;">Sistema • Programado</div>
-                </div>
-            </div>
-        {% endif %}
-    </div>
-</section>
-
-<!-- Mapa de Estado de Red -->
-<section class="chart-card fade-in">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3>Vista General de la Red</h3>
-        <a href="{% url 'mufas:mapa_mufas' %}" class="btn btn-primary">
-            <i class="fas fa-expand"></i>
-            Ver Mapa Completo
-        </a>
-    </div>
-    <div style="height: 400px; border-radius: 16px; overflow: hidden; background: var(--dark-3); display: flex; align-items: center; justify-content: center; color: var(--text-secondary);">
-        <div style="text-align: center;">
-            <i class="fas fa-map-marked-alt" style="font-size: 48px; margin-bottom: 16px; color: var(--primary);"></i>
-            <p>Mapa Interactivo de la Red de Fibra Óptica</p>
-            <p style="margin-top: 8px; font-size: 14px;">Haz clic en "Ver Mapa Completo" para acceder al control avanzado</p>
         </div>
     </div>
-</section>
 
-<!-- Acciones Rápidas -->
-<section class="chart-card fade-in">
-    <h3 class="mb-3">Acciones Rápidas</h3>
-    <div class="quick-actions">
-        <a href="{% url 'mufas:mapa_mufas' %}" class="action-btn">
-            <i class="fas fa-search-location" style="font-size: 20px;"></i>
-            <span>Buscar Hilos Disponibles</span>
-        </a>
-        <a href="{% url 'proyectos:create' %}" class="action-btn">
-            <i class="fas fa-plus" style="font-size: 20px;"></i>
-            <span>Nuevo Proyecto</span>
-        </a>
-        <a href="{% url 'admin:mufas_mufa_add' %}" class="action-btn">
-            <i class="fas fa-network-wired" style="font-size: 20px;"></i>
-            <span>Registrar Mufa</span>
-        </a>
-        <a href="{% url 'analytics_dashboard' %}" class="action-btn">
-            <i class="fas fa-chart-bar" style="font-size: 20px;"></i>
-            <span>Analytics Avanzado</span>
-        </a>
-        <a href="{% url 'admin:index' %}" class="action-btn">
-            <i class="fas fa-cog" style="font-size: 20px;"></i>
-            <span>Configuración</span>
-        </a>
-        <a href="{% url 'api_v1:api_v1_executive_report' %}" class="action-btn">
-            <i class="fas fa-download" style="font-size: 20px;"></i>
-            <span>Exportar Reportes</span>
-        </a>
+    <!-- METRICS CARDS ROW 1 -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="metric-card fade-in-up">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <i class="fas fa-network-wired fa-2x" style="color: var(--primary-blue);"></i>
+                    <span class="badge status-active">+12.5%</span>
+                </div>
+                <div class="metric-value" style="color: var(--primary-blue);">
+                    {{ total_mufas|default:"2,847" }}
+                </div>
+                <div class="metric-label">Mufas Operativas</div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="metric-card fade-in-up">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <i class="fas fa-ethernet fa-2x" style="color: var(--success-green);"></i>
+                    <span class="badge status-active">+8.2%</span>
+                </div>
+                <div class="metric-value" style="color: var(--success-green);">
+                    {{ hilos_disponibles|default:"18,432" }}
+                </div>
+                <div class="metric-label">Hilos Disponibles</div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="metric-card fade-in-up">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <i class="fas fa-project-diagram fa-2x" style="color: var(--warning-orange);"></i>
+                    <span class="badge status-pending">+15.7%</span>
+                </div>
+                <div class="metric-value" style="color: var(--warning-orange);">
+                    {{ proyectos_activos|default:"167" }}
+                </div>
+                <div class="metric-label">Proyectos Activos</div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="metric-card fade-in-up">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <i class="fas fa-chart-pie fa-2x" style="color: var(--danger-red);"></i>
+                    <span class="badge status-error">-2.1%</span>
+                </div>
+                <div class="metric-value" style="color: var(--danger-red);">
+                    {{ ocupacion_promedio|default:"78.5" }}%
+                </div>
+                <div class="metric-label">Ocupación de Red</div>
+            </div>
+        </div>
     </div>
-</section>
+
+    <!-- METRICS CARDS ROW 2 -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="metric-card fade-in-up">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <i class="fas fa-dollar-sign fa-2x" style="color: var(--success-green);"></i>
+                    <span class="badge status-active">+23.4%</span>
+                </div>
+                <div class="metric-value" style="color: var(--success-green);">
+                    184.5%
+                </div>
+                <div class="metric-label">ROI Promedio</div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="metric-card fade-in-up">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <i class="fas fa-cogs fa-2x" style="color: var(--primary-blue);"></i>
+                    <span class="badge status-active">+5.8%</span>
+                </div>
+                <div class="metric-value" style="color: var(--primary-blue);">
+                    87.2%
+                </div>
+                <div class="metric-label">Eficiencia Operativa</div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="metric-card fade-in-up">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <i class="fas fa-smile fa-2x" style="color: var(--warning-orange);"></i>
+                    <span class="badge status-active">+0.7</span>
+                </div>
+                <div class="metric-value" style="color: var(--warning-orange);">
+                    9.1/10
+                </div>
+                <div class="metric-label">Satisfacción Cliente</div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="metric-card fade-in-up">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <i class="fas fa-exclamation-triangle fa-2x" style="color: var(--danger-red);"></i>
+                    <span class="badge status-error">2</span>
+                </div>
+                <div class="metric-value" style="color: var(--danger-red);">
+                    2
+                </div>
+                <div class="metric-label">Alertas Críticas</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHARTS AND TABLES ROW -->
+    <div class="row mb-4">
+        <!-- CHART: RENDIMIENTO MENSUAL -->
+        <div class="col-xl-8 col-lg-7 mb-3">
+            <div class="card-custom">
+                <div class="card-header-custom p-3">
+                    <h5 class="mb-0 text-light">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Rendimiento Mensual de Red
+                    </h5>
+                </div>
+                <div class="p-3">
+                    <canvas id="performanceChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ALERTAS Y NOTIFICACIONES -->
+        <div class="col-xl-4 col-lg-5 mb-3">
+            <div class="card-custom">
+                <div class="card-header-custom p-3">
+                    <h5 class="mb-0 text-light">
+                        <i class="fas fa-bell me-2"></i>
+                        Alertas del Sistema
+                    </h5>
+                </div>
+                <div class="p-3">
+                    <div class="d-flex align-items-center mb-3 p-2 rounded" style="background: rgba(255, 56, 56, 0.1); border-left: 3px solid var(--danger-red);">
+                        <i class="fas fa-exclamation-circle text-danger me-2"></i>
+                        <div>
+                            <small class="text-light fw-bold">Mufa Crítica</small><br>
+                            <small class="text-muted">MUFA-LIM-001: Ocupación 98%</small>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex align-items-center mb-3 p-2 rounded" style="background: rgba(255, 165, 2, 0.1); border-left: 3px solid var(--warning-orange);">
+                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                        <div>
+                            <small class="text-light fw-bold">Mantenimiento</small><br>
+                            <small class="text-muted">Programado para mañana 02:00</small>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex align-items-center mb-3 p-2 rounded" style="background: rgba(0, 208, 132, 0.1); border-left: 3px solid var(--success-green);">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <div>
+                            <small class="text-light fw-bold">Proyecto Completado</small><br>
+                            <small class="text-muted">PRY-085 finalizado exitosamente</small>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <a href="#" class="btn btn-primary-custom btn-sm">
+                            <i class="fas fa-list me-1"></i>Ver Todas las Alertas
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ACTIONS AND QUICK ACCESS -->
+    <div class="row mb-4">
+        <div class="col-xl-6 col-lg-6 mb-3">
+            <div class="card-custom">
+                <div class="card-header-custom p-3">
+                    <h5 class="mb-0 text-light">
+                        <i class="fas fa-bolt me-2"></i>
+                        Acciones Rápidas
+                    </h5>
+                </div>
+                <div class="p-4">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <a href="{% url 'proyectos:create' %}" class="btn btn-primary-custom w-100">
+                                <i class="fas fa-plus me-2"></i>Nuevo Proyecto
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="{% url 'mufas:mapa_mufas' %}" class="btn btn-success-custom w-100">
+                                <i class="fas fa-map me-2"></i>Ver Red de Mufas
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="{% url 'proyectos:analytics' %}" class="btn btn-primary-custom w-100">
+                                <i class="fas fa-chart-bar me-2"></i>Analytics Avanzado
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="/admin/" class="btn btn-success-custom w-100">
+                                <i class="fas fa-shield-alt me-2"></i>Panel Admin
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-6 col-lg-6 mb-3">
+            <div class="card-custom">
+                <div class="card-header-custom p-3">
+                    <h5 class="mb-0 text-light">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Estado del Sistema
+                    </h5>
+                </div>
+                <div class="p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-light">Servidor Principal</span>
+                        <span class="badge status-active">Operativo</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-light">Base de Datos</span>
+                        <span class="badge status-active">Conectada</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-light">APIs Externas</span>
+                        <span class="badge status-active">Disponibles</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-light">Ubicación</span>
+                        <span class="text-muted">Lima, Perú</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-light">Última Actualización</span>
+                        <span class="text-muted">Hace 2 minutos</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RECENT PROJECTS TABLE -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card-custom">
+                <div class="card-header-custom p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 text-light">
+                            <i class="fas fa-project-diagram me-2"></i>
+                            Proyectos Recientes
+                        </h5>
+                        <a href="{% url 'proyectos:list' %}" class="btn btn-primary-custom btn-sm">
+                            <i class="fas fa-external-link-alt me-1"></i>Ver Todos
+                        </a>
+                    </div>
+                </div>
+                <div class="p-3">
+                    <div class="table-responsive">
+                        <table class="table table-dark-custom">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Proyecto</th>
+                                    <th>Estado</th>
+                                    <th>Progreso</th>
+                                    <th>Responsable</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge bg-primary">PRY-001</span></td>
+                                    <td>Torre Empresarial Norte</td>
+                                    <td><span class="badge status-active">En Construcción</span></td>
+                                    <td>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar" style="width: 75%; background: var(--success-green);"></div>
+                                        </div>
+                                        <small class="text-muted">75%</small>
+                                    </td>
+                                    <td>Juan Pérez</td>
+                                    <td class="text-muted">15/08/2024</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-primary">PRY-002</span></td>
+                                    <td>Residencial Las Flores</td>
+                                    <td><span class="badge status-pending">Planificación</span></td>
+                                    <td>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar" style="width: 25%; background: var(--warning-orange);"></div>
+                                        </div>
+                                        <small class="text-muted">25%</small>
+                                    </td>
+                                    <td>María García</td>
+                                    <td class="text-muted">10/08/2024</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Configuración de Chart.js para tema oscuro
-    Chart.defaults.color = '#A0AEC0';
-    Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
-    Chart.defaults.backgroundColor = 'rgba(0, 212, 170, 0.1)';
+// Update current time
+function updateTime() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('es-PE', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        second: '2-digit'
+    });
+    document.getElementById('current-time').textContent = timeString;
+}
 
-    // Variables globales
-    let capacityChart, distributionChart;
-    let dashboardData = {
-        networkMetrics: {{ total_mufas|default:2847 }},
-        hilosDisponibles: {{ hilos_disponibles|default:18432 }},
-        ocupacionPromedio: {{ ocupacion_promedio|default:78.5 }},
-        proyectosActivos: {{ proyectos_activos|default:167 }}
-    };
+// Update time every second
+setInterval(updateTime, 1000);
+updateTime();
 
-    // Inicializar gráficos
-    function initializeCharts() {
-        // Gráfico de Capacidad
-        const capacityCtx = document.getElementById('capacityChart').getContext('2d');
-        capacityChart = new Chart(capacityCtx, {
-            type: 'line',
-            data: {
-                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov'],
-                datasets: [{
-                    label: 'Hilos Ocupados',
-                    data: [12000, 15000, 18000, 22000, 25000, 28000, 31000, 34000, 36000, 38000, {{ hilos_ocupados|default:34000 }}],
-                    borderColor: '#00D4AA',
-                    backgroundColor: 'rgba(0, 212, 170, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }, {
-                    label: 'Capacidad Total',
-                    data: [50000, 52000, 54000, 56000, 58000, 60000, 62000, 64000, 66000, 68000, {{ capacidad_total|default:64000 }}],
-                    borderColor: '#0984E3',
-                    backgroundColor: 'rgba(9, 132, 227, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    }
+// Performance Chart
+const ctx = document.getElementById('performanceChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago'],
+        datasets: [{
+            label: 'Ocupación de Red (%)',
+            data: [65, 72, 78, 82, 75, 78, 85, 78],
+            borderColor: '#00a8ff',
+            backgroundColor: 'rgba(0, 168, 255, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4
+        }, {
+            label: 'Proyectos Completados',
+            data: [12, 15, 18, 22, 25, 28, 32, 35],
+            borderColor: '#00d084',
+            backgroundColor: 'rgba(0, 208, 132, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                labels: {
+                    color: '#e4e6ea'
+                }
+            }
+        },
+        scales: {
+            x: {
+                ticks: {
+                    color: '#8b949e'
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        }
-                    }
-                },
-                elements: {
-                    point: {
-                        radius: 4,
-                        hoverRadius: 6
-                    }
+                grid: {
+                    color: '#30363d'
                 }
-            }
-        });
-
-        // Gráfico de Distribución
-        const distributionCtx = document.getElementById('distributionChart').getContext('2d');
-        distributionChart = new Chart(distributionCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['San Isidro', 'Miraflores', 'Surco', 'La Molina', 'Otros'],
-                datasets: [{
-                    data: [25, 20, 18, 15, 22],
-                    backgroundColor: [
-                        '#00D4AA',
-                        '#0984E3',
-                        '#6C5CE7',
-                        '#FDCB6E',
-                        '#E84393'
-                    ],
-                    borderWidth: 2,
-                    borderColor: '#1A1A2E'
-                }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            usePointStyle: true,
-                            padding: 20
-                        }
-                    }
+            y: {
+                ticks: {
+                    color: '#8b949e'
+                },
+                grid: {
+                    color: '#30363d'
                 }
             }
-        });
-    }
-
-    // Actualizar datos en tiempo real
-    async function updateDashboardData() {
-        try {
-            showToast('Actualizando datos...', 'info', 2000);
-            
-            const response = await fetch('{% url "api_overview" %}');
-            if (!response.ok) throw new Error('Error al obtener datos');
-            
-            const data = await response.json();
-            
-            // Actualizar KPIs con animación
-            animateValue('totalMufas', parseInt(document.getElementById('totalMufas').textContent.replace(/,/g, '')), data.total_mufas, 1000);
-            animateValue('hilosDisponibles', parseInt(document.getElementById('hilosDisponibles').textContent.replace(/,/g, '')), data.hilos_disponibles, 1000);
-            animateValue('proyectosActivos', parseInt(document.getElementById('proyectosActivos').textContent.replace(/,/g, '')), data.proyectos_activos, 1000);
-            
-            document.getElementById('ocupacionPromedio').textContent = data.ocupacion_promedio + '%';
-            
-            console.log('Dashboard actualizado:', data.timestamp);
-            
-        } catch (error) {
-            console.error('Error actualizando dashboard:', error);
-            showToast('Error al actualizar datos', 'error');
         }
     }
-
-    // Animación de valores numéricos
-    function animateValue(elementId, start, end, duration) {
-        const element = document.getElementById(elementId);
-        const range = end - start;
-        const increment = end > start ? 1 : -1;
-        const stepTime = Math.abs(Math.floor(duration / range));
-        let current = start;
-        
-        const timer = setInterval(() => {
-            current += increment;
-            element.textContent = current.toLocaleString();
-            if (current === end) {
-                clearInterval(timer);
-            }
-        }, stepTime);
-    }
-
-    // Actualizar período del gráfico
-    function updateChart(period) {
-        // Remover clase active de todos los botones
-        event.target.parentNode.querySelectorAll('button').forEach(btn => {
-            btn.className = btn.className.replace('btn-primary', 'btn-outline');
-        });
-        
-        // Agregar clase active al botón clickeado
-        event.target.className = event.target.className.replace('btn-outline', 'btn-primary');
-        
-        // Aquí implementarías la lógica para actualizar el gráfico según el período
-        console.log('Actualizando gráfico para período:', period);
-        showToast(`Vista actualizada: ${period}`, 'info', 2000);
-    }
-
-    // Auto-refresh cada 30 segundos
-    function startAutoRefresh() {
-        setInterval(updateDashboardData, 30000);
-    }
-
-    // Monitoreo de rendimiento del dashboard
-    function monitorPerformance() {
-        // Medir tiempo de carga inicial
-        window.addEventListener('load', () => {
-            const loadTime = Math.round(performance.now());
-            console.log(`Dashboard cargado en ${loadTime}ms`);
-            
-            if (loadTime > 3000) {
-                console.warn('Dashboard cargando lentamente');
-            }
-        });
-        
-        // Monitorear memoria
-        if ('memory' in performance) {
-            setInterval(() => {
-                const memory = performance.memory;
-                if (memory.usedJSHeapSize > 50000000) { // 50MB
-                    console.warn('Alto uso de memoria detectado');
-                }
-            }, 60000);
-        }
-    }
-
-    // Gestión de eventos del teclado
-    document.addEventListener('keydown', (e) => {
-        // Ctrl/Cmd + R para refresh manual
-        if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
-            e.preventDefault();
-            updateDashboardData();
-        }
-        
-        // Ctrl/Cmd + M para ir al mapa
-        if ((e.ctrlKey || e.metaKey) && e.key === 'm') {
-            e.preventDefault();
-            window.location.href = '{% url "mufas:mapa_mufas" %}';
-        }
-        
-        // Ctrl/Cmd + A para ir a analytics
-        if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
-            e.preventDefault();
-            window.location.href = '{% url "analytics_dashboard" %}';
-        }
-    });
-
-    // Detección de conectividad
-    window.addEventListener('online', () => {
-        showToast('Conexión restaurada', 'success');
-        updateDashboardData();
-    });
-
-    window.addEventListener('offline', () => {
-        showToast('Sin conexión - Datos pueden estar desactualizados', 'warning');
-    });
-
-    // WebSocket para actualizaciones en tiempo real (opcional)
-    function initializeWebSocket() {
-        if ('WebSocket' in window) {
-            // Solo si WebSocket está configurado en el backend
-            // const ws = new WebSocket('ws://localhost:8000/ws/dashboard/');
-            // ws.onmessage = function(event) {
-            //     const data = JSON.parse(event.data);
-            //     handleRealtimeUpdate(data);
-            // };
-        }
-    }
-
-    // Manejar actualizaciones en tiempo real
-    function handleRealtimeUpdate(data) {
-        if (data.type === 'kpi_update') {
-            // Actualizar KPIs específicos
-            Object.keys(data.kpis).forEach(kpi => {
-                const element = document.querySelector(`[data-kpi="${kpi}"] .kpi-value`);
-                if (element) {
-                    element.textContent = data.kpis[kpi].toLocaleString();
-                }
-            });
-        } else if (data.type === 'alert') {
-            // Mostrar alerta en tiempo real
-            showToast(data.message, data.level);
-        }
-    }
-
-    // Exportar funciones globales
-    window.DashboardManager = {
-        updateData: updateDashboardData,
-        updateChart: updateChart,
-        animateValue: animateValue
-    };
-
-    // Inicialización cuando el DOM esté listo
-    document.addEventListener('DOMContentLoaded', function() {
-        initializeCharts();
-        monitorPerformance();
-        
-        // Delay inicial para suavizar la carga
-        setTimeout(() => {
-            startAutoRefresh();
-            updateDashboardData();
-        }, 1000);
-        
-        // Animaciones de entrada
-        document.querySelectorAll('.fade-in').forEach((el, index) => {
-            el.style.animationDelay = `${index * 0.1}s`;
-        });
-        
-        console.log('WinFibra Executive Dashboard inicializado');
-        showToast('Dashboard cargado exitosamente', 'success', 3000);
-    });
-
-    // Cleanup cuando la página se descarga
-    window.addEventListener('beforeunload', () => {
-        if (capacityChart) capacityChart.destroy();
-        if (distributionChart) distributionChart.destroy();
-    });
-
-    // Manejo de errores globales específicos del dashboard
-    window.addEventListener('error', (e) => {
-        if (e.filename && e.filename.includes('dashboard')) {
-            console.error('Error específico del dashboard:', e.error);
-            showToast('Error en el dashboard - Recargando...', 'error');
-            setTimeout(() => location.reload(), 3000);
-        }
-    });
-
-    // Notificaciones push simuladas para demostración
-    setTimeout(() => {
-        showToast('Bienvenido al Dashboard Ejecutivo de WinFibra', 'info', 5000);
-    }, 2000);
-
-    // Simulación de alertas del sistema
-    setTimeout(() => {
-        if ({{ ocupacion_promedio|default:78.5 }} > 80) {
-            showToast('Alta ocupación detectada en múltiples zonas', 'warning', 7000);
-        }
-    }, 10000);
-
-    // Performance analytics
-    if ('PerformanceObserver' in window) {
-        const observer = new PerformanceObserver((list) => {
-            for (const entry of list.getEntries()) {
-                if (entry.entryType === 'navigation') {
-                    console.log(`Navegación: ${entry.duration}ms`);
-                }
-            }
-        });
-        observer.observe({ entryTypes: ['navigation'] });
-    }
+});
 </script>
-{% endblock %};">{{ actividad.titulo }}</div>
-                    <div style="color: var(--text-secondary); font-size: 12px;">{{ actividad.descripcion|default:actividad.tiempo|timesince }} • {{ actividad.usuario|default:'Sistema' }}</div>
-                </div>
-            </div>
-            {% endfor %}
-        {% else %}
-            <!-- Actividad simulada -->
-            <div class="activity-item">
-                <div class="activity-icon" style="background: var(--success);">
-                    <i class="fas fa-plus"></i>
-                </div>
-                <div style="flex: 1;">
-                    <div style="font-weight: 500; margin-bottom: 4px;">Nueva mufa instalada - MF-2847</div>
-                    <div style="color: var(--text-secondary); font-size: 12px;">San Isidro • Hace 15 min</div>
-                </div>
-            </div>
-            <div class="activity-item">
-                <div class="activity-icon" style="background: var(--warning);">
-                    <i class="fas fa-wrench"></i>
-                </div>
-                <div style="flex: 1;">
-                    <div style="font-weight: 500; margin-bottom: 4px;">Mantenimiento programado</div>
-                    <div style="color: var(--text-secondary); font-size: 12px;">Miraflores • Hace 1 hora</div>
-                </div>
-            </div>
-            <div class="activity-item">
-                <div class="activity-icon" style="background: var(--primary);">
-                    <i class="fas fa-project-diagram"></i>
-                </div>
-                <div style="flex: 1;">
-                    <div style="font-weight: 500; margin-bottom: 4px;">Proyecto PRY-167 completado</div>
-                    <div style="color: var(--text-secondary); font-size: 12px;">Surco • Hace 2 horas</div>
-                </div>
-            </div>
-        {% endif %}
-    </div>
-
-    <div class="chart-card">
-        <h3 class="mb-3">Alertas del Sistema</h3>
-        {% if alertas_sistema %}
-            {% for alerta in alertas_sistema %}
-            <div class="activity-item">
-                <div class="activity-icon" style="background: {% if alerta.nivel == 'critico' %}var(--danger){% elif alerta.nivel == 'warning' %}var(--warning){% else %}var(--secondary){% endif %};">
-                    <i class="fas fa-{% if alerta.tipo == 'warning' %}exclamation-triangle{% elif alerta.tipo == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
-                </div>
-                <div style="flex: 1;">
-                    <div style="font-weight: 500; margin-bottom: 4px;">{{ alerta.mensaje }}</div>
-                    <div style="color: var(--text-secondary); font-size: 12px;">{{ alerta.tiempo|timesince }} • {{ alerta.nivel|title }}</div>
-                </div>
-            </div>
-            {% endfor %}
-        {% else %}
-            <!-- Alertas simuladas -->
-            <div class="activity-item">
-                <div class="activity-icon" style="background: var(--danger);">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div style="flex: 1;">
-                    <div style="font-weight: 500; margin-bottom: 4px;">Alta ocupación en zona norte</div>
-                    <div style="color: var(--text-secondary); font-size: 12px;">Los Olivos • Crítico</div>
-                </div>
-            </div>
-            <div class="activity-item">
-                <div class="activity-icon" style="background: var(--warning);">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div style="flex: 1;">
-                    <div style="font-weight: 500; margin-bottom: 4px
+{% endblock %}

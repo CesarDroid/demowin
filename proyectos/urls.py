@@ -1,15 +1,19 @@
+# proyectos/urls.py - VERSIÓN CORREGIDA
 from django.urls import path
-from django.shortcuts import render
+from . import views
 
 app_name = "proyectos"
 
-def proyecto_dashboard(request):
-    return render(request, 'proyectos/dashboard.html', {'demo': True})
-
-def proyecto_list(request):
-    return render(request, 'proyectos/proyecto_list.html', {'proyectos': []})
-
 urlpatterns = [
-    path("", proyecto_dashboard, name="dashboard"),
-    path("lista/", proyecto_list, name="list"),
+    # Dashboard principal de proyectos
+    path('', views.proyecto_dashboard_view, name='dashboard'),
+    
+    # Listado de proyectos
+    path('lista/', views.ProyectoListView.as_view(), name='list'),
+    
+    # Crear nuevo proyecto
+    path('crear/', views.CrearProyectoView.as_view(), name='create'),
+    
+    # Analytics de proyectos
+    path('analytics/', views.ProyectoAnalyticsView.as_view(), name='analytics'),
 ]

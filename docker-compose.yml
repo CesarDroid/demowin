@@ -1,0 +1,22 @@
+# Removed obsolete version field
+
+services:
+  web:
+    build: .
+    ports:
+      - "8001:8000"
+    environment:
+      - DEBUG=True
+      - SECRET_KEY=demo-secret-key-for-client-presentation-winfibra-2024
+      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,*,.ngrok.io,.ngrok-free.app,.tunnel.pyjam.as,.loca.lt
+      - DATABASE_URL=sqlite:///app/data/db.sqlite3
+    volumes:
+      - db_data:/app/data
+      - static_files:/app/staticfiles
+      - media_files:/app/media
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  static_files:
+  media_files:

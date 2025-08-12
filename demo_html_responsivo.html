@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WinFibra - Demo Responsivo</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-dark: #0f1419;
+            --secondary-dark: #1a1f2e;
+            --accent-dark: #252a3a;
+            --primary-blue: #00a8ff;
+            --success-green: #00d084;
+            --warning-orange: #ffa502;
+            --danger-red: #ff3838;
+            --text-light: #e4e6ea;
+            --text-muted: #8b949e;
+            --border-color: #30363d;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
+            color: var(--text-light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        .navbar-custom {
+            background: rgba(15, 20, 25, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-blue) !important;
+        }
+
+        .navbar-nav .nav-link {
+            color: var(--text-light) !important;
+            font-weight: 500;
+            margin: 0 0.5rem;
+            padding: 0.5rem 1rem !important;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background: rgba(0, 168, 255, 0.1);
+            color: var(--primary-blue) !important;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, rgba(37, 42, 58, 0.9) 0%, rgba(26, 31, 46, 0.9) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--success-green));
+        }
+
+        .metric-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-custom {
+            background: rgba(37, 42, 58, 0.8);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card-header-custom {
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid var(--border-color);
+            border-radius: 12px 12px 0 0 !important;
+            font-weight: 600;
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary-blue), #0078d4);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+        }
+
+        .status-active { background: var(--success-green); }
+        .status-pending { background: var(--warning-orange); }
+        .status-error { background: var(--danger-red); }
+
+        /* MOBILE RESPONSIVE */
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+            
+            .navbar-brand .text-muted {
+                display: none;
+            }
+            
+            .metric-card {
+                padding: 1rem;
+            }
+            
+            .metric-value {
+                font-size: 2rem;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .btn {
+                margin-bottom: 0.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .navbar-brand {
+                font-size: 1rem;
+            }
+            
+            .metric-card {
+                padding: 0.75rem;
+            }
+            
+            .metric-value {
+                font-size: 1.5rem;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-bottom: 0.75rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (hover: none) {
+            .btn,
+            .nav-link {
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVIGATION -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="#dashboard">
+                <i class="fas fa-network-wired me-2"></i>
+                WinFibra <span class="text-muted">| Demo Responsivo</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#dashboard">
+                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#mapa">
+                            <i class="fas fa-map-marked-alt me-1"></i>Red de Mufas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#analytics">
+                            <i class="fas fa-chart-bar me-1"></i>Analytics
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main style="margin-top: 76px; padding: 2rem 0;">
+        <!-- DASHBOARD SECTION -->
+        <section id="dashboard">
+            <div class="container-fluid">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h1 class="text-light mb-1">
+                            <i class="fas fa-tachometer-alt text-primary me-3"></i>
+                            Dashboard Responsivo
+                        </h1>
+                        <p class="text-muted mb-0">Demostración de interfaz móvil completamente responsive</p>
+                    </div>
+                </div>
+
+                <!-- METRICS CARDS -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="metric-card">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <i class="fas fa-network-wired fa-2x" style="color: var(--primary-blue);"></i>
+                                <span class="badge status-active">+12.5%</span>
+                            </div>
+                            <div class="metric-value" style="color: var(--primary-blue);">
+                                2,847
+                            </div>
+                            <div class="metric-label">Mufas Operativas</div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="metric-card">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <i class="fas fa-ethernet fa-2x" style="color: var(--success-green);"></i>
+                                <span class="badge status-active">+8.2%</span>
+                            </div>
+                            <div class="metric-value" style="color: var(--success-green);">
+                                18,432
+                            </div>
+                            <div class="metric-label">Hilos Disponibles</div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="metric-card">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <i class="fas fa-project-diagram fa-2x" style="color: var(--warning-orange);"></i>
+                                <span class="badge status-pending">+15.7%</span>
+                            </div>
+                            <div class="metric-value" style="color: var(--warning-orange);">
+                                167
+                            </div>
+                            <div class="metric-label">Proyectos Activos</div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xl-3 col-md-6 mb-3">
+                        <div class="metric-card">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <i class="fas fa-chart-pie fa-2x" style="color: var(--danger-red);"></i>
+                                <span class="badge status-error">-2.1%</span>
+                            </div>
+                            <div class="metric-value" style="color: var(--danger-red);">
+                                78.5%
+                            </div>
+                            <div class="metric-label">Ocupación de Red</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INFO SECTION -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card-custom">
+                            <div class="card-header-custom p-3">
+                                <h5 class="mb-0 text-light">
+                                    <i class="fas fa-mobile-alt me-2"></i>
+                                    Demo de Responsividad Móvil
+                                </h5>
+                            </div>
+                            <div class="p-4">
+                                <div class="alert alert-info" style="background: rgba(0, 168, 255, 0.1); border: 1px solid var(--primary-blue); color: var(--text-light);">
+                                    <h6><i class="fas fa-info-circle me-2"></i>¡Prueba la responsividad!</h6>
+                                    <p class="mb-2">Para probar en diferentes dispositivos:</p>
+                                    <ol class="mb-2">
+                                        <li><strong>Presiona F12</strong> para abrir las herramientas de desarrollador</li>
+                                        <li><strong>Activa "Device Toolbar"</strong> (icono de móvil/tablet)</li>
+                                        <li><strong>Selecciona diferentes dispositivos</strong>: iPhone SE, iPhone 12 Pro, iPad</li>
+                                        <li><strong>Prueba orientaciones</strong>: vertical y horizontal</li>
+                                    </ol>
+                                    <p class="mb-0"><strong>Verás cómo:</strong> La navegación se convierte en hamburger menu, las tarjetas se adaptan, los botones se optimizan para touch, y todo se reorganiza perfectamente.</p>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-4 text-center mb-3">
+                                        <div class="p-3 rounded" style="background: rgba(0, 208, 132, 0.1);">
+                                            <i class="fas fa-mobile-alt fa-3x text-success mb-2"></i>
+                                            <h6 class="text-light">Móviles</h6>
+                                            <p class="text-muted mb-0">Optimizado para pantallas < 480px</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-center mb-3">
+                                        <div class="p-3 rounded" style="background: rgba(0, 168, 255, 0.1);">
+                                            <i class="fas fa-tablet-alt fa-3x text-primary mb-2"></i>
+                                            <h6 class="text-light">Tablets</h6>
+                                            <p class="text-muted mb-0">Responsive para pantallas < 768px</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-center mb-3">
+                                        <div class="p-3 rounded" style="background: rgba(255, 165, 2, 0.1);">
+                                            <i class="fas fa-laptop fa-3x text-warning mb-2"></i>
+                                            <h6 class="text-light">Desktop</h6>
+                                            <p class="text-muted mb-0">Interfaz completa > 768px</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="text-center mt-4">
+                                    <p class="text-light"><strong>¡WinFibra está listo para impresionar a tu cliente con una experiencia móvil profesional!</strong></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
