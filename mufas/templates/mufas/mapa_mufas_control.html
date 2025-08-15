@@ -272,6 +272,216 @@
       box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
     }
 
+    /* Panel de Slots de Cables */
+    .slots-panel {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 400px;
+      max-height: 80vh;
+      background: rgba(15, 15, 15, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      z-index: 1000;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      overflow-y: auto;
+    }
+
+    .mufa-info {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .mufa-title {
+      font-weight: 600;
+      color: #1abc9c;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mufa-details {
+      font-size: 12px;
+      color: #ccc;
+      line-height: 1.4;
+    }
+
+    .slots-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .slot-stat {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .slot-stat-number {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .slot-stat-label {
+      font-size: 10px;
+      color: #888;
+      text-transform: uppercase;
+    }
+
+    .slots-tabs {
+      display: flex;
+      margin-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .tab-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      color: #888;
+      padding: 12px 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-bottom: 2px solid transparent;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .tab-btn:hover {
+      color: #ccc;
+    }
+
+    .tab-btn.active {
+      color: #1abc9c;
+      border-bottom-color: #1abc9c;
+    }
+
+    .slots-list {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .slot-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .slot-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateX(2px);
+    }
+
+    .slot-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .slot-number {
+      font-weight: 600;
+      color: #1abc9c;
+    }
+
+    .slot-type {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .slot-type.ingreso {
+      background: rgba(52, 152, 219, 0.2);
+      color: #3498db;
+    }
+
+    .slot-type.salida {
+      background: rgba(231, 76, 60, 0.2);
+      color: #e74c3c;
+    }
+
+    .slot-type.derivacion {
+      background: rgba(155, 89, 182, 0.2);
+      color: #9b59b6;
+    }
+
+    .slot-details {
+      font-size: 11px;
+      color: #ccc;
+      line-height: 1.3;
+    }
+
+    .slot-cable {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      padding: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+    }
+
+    .slot-utilization {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .utilization-bar {
+      width: 60px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .utilization-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #f59e0b, #e74c3c);
+      transition: width 0.3s ease;
+    }
+
+    .slot-status {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    .slot-status.libre {
+      background: #10b981;
+    }
+
+    .slot-status.ocupado {
+      background: #f59e0b;
+    }
+
+    .slot-status.reservado {
+      background: #8b5cf6;
+    }
+
+    .slot-status.fuera_servicio {
+      background: #e74c3c;
+    }
+
     /* Panel de Estado Inferior */
     .status-panel {
       position: fixed;
@@ -790,6 +1000,60 @@
     </div>
   </div>
 
+  <!-- Panel de Slots de Cables -->
+  <div class="slots-panel fade-in" id="slotsPanel" style="display: none;">
+    <div class="panel-header">
+      <div class="panel-title">
+        <i class="fas fa-plug"></i>
+        Slots de Cables
+      </div>
+      <button class="minimize-btn" onclick="closeSlotsPanel()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="panel-content" id="slotsPanelContent">
+      <div class="slots-loading" id="slotsLoading">
+        <div class="loading-skeleton"></div>
+        <div class="loading-skeleton"></div>
+        <div class="loading-skeleton"></div>
+      </div>
+      
+      <div class="slots-content" id="slotsContent" style="display: none;">
+        <!-- Información de la mufa seleccionada -->
+        <div class="mufa-info" id="mufaInfo">
+          <!-- Se llena dinámicamente -->
+        </div>
+        
+        <!-- Estadísticas de slots -->
+        <div class="slots-stats" id="slotsStats">
+          <!-- Se llena dinámicamente -->
+        </div>
+        
+        <!-- Tabs para diferentes tipos de cables -->
+        <div class="slots-tabs" id="slotsTabs">
+          <button class="tab-btn active" data-tipo="todos">
+            <i class="fas fa-list"></i> Todos
+          </button>
+          <button class="tab-btn" data-tipo="ingreso">
+            <i class="fas fa-arrow-down"></i> Ingreso
+          </button>
+          <button class="tab-btn" data-tipo="salida">
+            <i class="fas fa-arrow-up"></i> Salida
+          </button>
+          <button class="tab-btn" data-tipo="derivacion">
+            <i class="fas fa-code-branch"></i> Derivación
+          </button>
+        </div>
+        
+        <!-- Lista de slots -->
+        <div class="slots-list" id="slotsList">
+          <!-- Se llena dinámicamente -->
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Panel de Estado -->
   <div class="status-panel fade-in">
     <div class="status-indicator">
@@ -818,6 +1082,7 @@
     // URLs dinámicas
     const URLS = {
       mufas: "{% url 'mufas:mufas_json' %}",
+      slots: "/mufas/slots/", // Base URL, se completará con el código de mufa
       asignar: "{% url 'mufas:asignar_hilo' %}"
     };
 
@@ -1012,6 +1277,13 @@
           </tr>
         `;
       }).join('');
+      
+      // Botón para ver slots de cables
+      const slotsButton = mufa.cable_slots && mufa.cable_slots.length > 0 ? 
+        `<button class="action-btn" onclick="showSlotsPanel('${mufa.codigo}')" 
+                style="margin-top: 12px; width: 100%;">
+          <i class="fas fa-plug"></i> Ver Slots de Cables (${mufa.cable_slots.length})
+        </button>` : '';
 
       return `
         <div class="popup-header">
@@ -1035,6 +1307,8 @@
         <div style="font-size: 12px; color: #ccc; margin-bottom: 12px;">
           ${mufa.descripcion || 'Sin descripción'}
         </div>
+        
+        ${slotsButton}
         
         <table class="hilos-table">
           <thead>
@@ -1348,6 +1622,181 @@
     window.addEventListener('offline', () => {
       updateStatus('Sin conexión', false);
     });
+
+    // Funciones para el panel de slots
+    let currentSlotsData = null;
+    let currentSlotsFilter = 'todos';
+
+    async function showSlotsPanel(mufaCodigo) {
+      const panel = document.getElementById('slotsPanel');
+      const loading = document.getElementById('slotsLoading');
+      const content = document.getElementById('slotsContent');
+      
+      // Mostrar panel y loading
+      panel.style.display = 'block';
+      loading.style.display = 'block';
+      content.style.display = 'none';
+      
+      try {
+        const response = await fetch(`${URLS.slots}${mufaCodigo}/`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        
+        const data = await response.json();
+        currentSlotsData = data;
+        
+        displaySlotsContent(data);
+        setupSlotsEventListeners();
+        
+      } catch (error) {
+        console.error('Error cargando slots:', error);
+        content.innerHTML = `
+          <div style="text-align: center; padding: 20px; color: #e74c3c;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>Error al cargar información de slots</p>
+          </div>
+        `;
+      } finally {
+        loading.style.display = 'none';
+        content.style.display = 'block';
+      }
+    }
+
+    function displaySlotsContent(data) {
+      const mufaInfo = document.getElementById('mufaInfo');
+      const slotsStats = document.getElementById('slotsStats');
+      const slotsList = document.getElementById('slotsList');
+      
+      // Información de la mufa
+      mufaInfo.innerHTML = `
+        <div class="mufa-title">
+          <i class="fas fa-network-wired"></i>
+          ${data.mufa.codigo}
+        </div>
+        <div class="mufa-details">
+          <div><strong>Tipo:</strong> ${data.mufa.tipo}</div>
+          <div><strong>Distrito:</strong> ${data.mufa.distrito || 'No especificado'}</div>
+          <div><strong>Ubicación:</strong> ${data.mufa.ubicacion || 'No especificada'}</div>
+          <div><strong>Capacidad hilos:</strong> ${data.mufa.capacidad_hilos}</div>
+        </div>
+      `;
+      
+      // Estadísticas de slots
+      const stats = data.estadisticas;
+      slotsStats.innerHTML = `
+        <div class="slot-stat">
+          <div class="slot-stat-number stat-total">${stats.total_slots}</div>
+          <div class="slot-stat-label">Total Slots</div>
+        </div>
+        <div class="slot-stat">
+          <div class="slot-stat-number stat-free">${stats.slots_libres}</div>
+          <div class="slot-stat-label">Libres</div>
+        </div>
+        <div class="slot-stat">
+          <div class="slot-stat-number stat-occupied">${stats.slots_ocupados}</div>
+          <div class="slot-stat-label">Ocupados</div>
+        </div>
+        <div class="slot-stat">
+          <div class="slot-stat-number stat-reserved">${stats.slots_reservados}</div>
+          <div class="slot-stat-label">Reservados</div>
+        </div>
+      `;
+      
+      // Mostrar slots filtrados
+      displayFilteredSlots(data.slots);
+    }
+
+    function displayFilteredSlots(allSlots) {
+      const slotsList = document.getElementById('slotsList');
+      
+      // Filtrar slots según el filtro activo
+      let filteredSlots = allSlots;
+      if (currentSlotsFilter !== 'todos') {
+        filteredSlots = allSlots.filter(slot => slot.tipo_cable === currentSlotsFilter);
+      }
+      
+      if (filteredSlots.length === 0) {
+        slotsList.innerHTML = `
+          <div style="text-align: center; padding: 20px; color: #888;">
+            <i class="fas fa-inbox"></i>
+            <p>No hay slots de este tipo</p>
+          </div>
+        `;
+        return;
+      }
+      
+      const slotsHTML = filteredSlots.map(slot => {
+        const utilizationWidth = slot.porcentaje_utilizacion;
+        const cableInfo = slot.cable_troncal;
+        
+        return `
+          <div class="slot-item">
+            <div class="slot-header">
+              <div class="slot-number">Slot ${slot.numero_slot}</div>
+              <div class="slot-type ${slot.tipo_cable}">${slot.tipo_cable_display}</div>
+            </div>
+            
+            <div class="slot-details">
+              <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                <span class="slot-status ${slot.estado}"></span>
+                ${slot.estado_display}
+              </div>
+              
+              ${slot.descripcion ? `<div style="margin-bottom: 6px;">${slot.descripcion}</div>` : ''}
+              
+              <div class="slot-cable">
+                <div>
+                  <strong>${cableInfo.codigo}</strong>
+                  <div style="font-size: 9px; color: #666;">
+                    ${slot.hilos_utilizados}/${cableInfo.capacidad} hilos
+                  </div>
+                </div>
+                
+                <div class="slot-utilization">
+                  <span style="font-size: 10px;">${utilizationWidth}%</span>
+                  <div class="utilization-bar">
+                    <div class="utilization-fill" 
+                         style="width: ${utilizationWidth}%"></div>
+                  </div>
+                </div>
+              </div>
+              
+              ${slot.fecha_instalacion ? 
+                `<div style="font-size: 9px; color: #666; margin-top: 6px;">
+                  Instalado: ${new Date(slot.fecha_instalacion).toLocaleDateString()}
+                </div>` : ''
+              }
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      slotsList.innerHTML = slotsHTML;
+    }
+
+    function setupSlotsEventListeners() {
+      // Tabs de filtro por tipo
+      document.getElementById('slotsTabs').addEventListener('click', (e) => {
+        if (e.target.classList.contains('tab-btn')) {
+          // Actualizar botones activos
+          document.querySelectorAll('#slotsTabs .tab-btn').forEach(btn => 
+            btn.classList.remove('active')
+          );
+          e.target.classList.add('active');
+          
+          // Aplicar filtro
+          currentSlotsFilter = e.target.dataset.tipo;
+          if (currentSlotsData) {
+            displayFilteredSlots(currentSlotsData.slots);
+          }
+        }
+      });
+    }
+
+    function closeSlotsPanel() {
+      document.getElementById('slotsPanel').style.display = 'none';
+      currentSlotsData = null;
+      currentSlotsFilter = 'todos';
+    }
 
     // Añadir efectos del mapa al cargar
     setTimeout(addMapEffects, 1000);

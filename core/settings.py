@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'mufas',
     'proyectos', 
     'roles',
+    'planificacion',
 ]
 
 MIDDLEWARE = [
